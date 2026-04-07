@@ -14,7 +14,9 @@ try {
 const BASE_DIR =
   process.platform === "win32"
     ? (process.env.APPDATA ?? "")
-    : join(process.env.HOME ?? "", ".local/share");
+    : process.platform === "darwin"
+      ? join(process.env.HOME ?? "", "Library/Application Support")
+      : join(process.env.HOME ?? "", ".local/share");
 
 const ANKI_USER = process.env.ANKI_USER ?? "User 1";
 
