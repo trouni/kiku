@@ -18,7 +18,7 @@ const tailwindSizePixels: Record<TailwindSize, number> = {
   "9xl": 128,
 };
 
-export const MIN_FONT_SIZE_PX = 10;
+export const MIN_FONT_SIZE_PX = 12;
 const MAX_INTERVAL_DAYS = 30;
 
 export function getScaledFontSizePx(
