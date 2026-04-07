@@ -39,6 +39,8 @@ class Script {
     const FILES = [
       "_kiku_front.html",
       "_kiku_back.html",
+      "_kiku_cloze_front.html",
+      "_kiku_cloze_back.html",
       "_kiku_style.css",
       "_kiku.css",
       "_kiku.js",

@@ -8,18 +8,23 @@ import { AnkiConnect, log } from "../tools/util.js";
 class Script {
   NOTE_TYPE = "Kiku";
   CARD_TYPE = "Mining";
+  CLOZE_CARD_TYPE = "Cloze";
   FRONT_PATH = paths["@/.anki-build/_kiku_front.html"];
   BACK_PATH = paths["@/.anki-build/_kiku_back.html"];
+  CLOZE_FRONT_PATH = paths["@/.anki-build/_kiku_cloze_front.html"];
+  CLOZE_BACK_PATH = paths["@/.anki-build/_kiku_cloze_back.html"];
   STYLE_PATH = paths["@/.anki-build/_kiku_style.css"];
 
   async readTemplates() {
-    const [front, back, style] = await Promise.all([
+    const [front, back, clozeFront, clozeBack, style] = await Promise.all([
       readFile(this.FRONT_PATH, "utf8"),
       readFile(this.BACK_PATH, "utf8"),
+      readFile(this.CLOZE_FRONT_PATH, "utf8"),
+      readFile(this.CLOZE_BACK_PATH, "utf8"),
       readFile(this.STYLE_PATH, "utf8"),
     ]);
 
-    return { front, back, style };
+    return { front, back, clozeFront, clozeBack, style };
   }
 
   applyDataAttributes(template: string) {
@@ -35,7 +40,40 @@ class Script {
     return styleSrc.replace("/* __CSS_VARIABLE__ */", cssVars);
   }
 
-  async updateTemplates(frontSrc: string, backSrc: string) {
+  async ensureClozeTemplateExists(clozeFrontSrc: string, clozeBackSrc: string) {
+    // Check if the Cloze template already exists
+    const modelResult = await AnkiConnect.call("modelTemplates", {
+      modelName: this.NOTE_TYPE,
+    });
+    const templates = modelResult.result ?? modelResult;
+    const hasClozeTemplate =
+      typeof templates === "object" &&
+      templates !== null &&
+      this.CLOZE_CARD_TYPE in templates;
+
+    if (!hasClozeTemplate) {
+      log.gray("Cloze template not found, adding it...");
+      const addResult = await AnkiConnect.call("modelTemplateAdd", {
+        modelName: this.NOTE_TYPE,
+        template: {
+          Name: this.CLOZE_CARD_TYPE,
+          Front: clozeFrontSrc,
+          Back: clozeBackSrc,
+        },
+      });
+      log.gray(`modelTemplateAdd: ${JSON.stringify(addResult)}`);
+      console.log(`✅ Added "${this.CLOZE_CARD_TYPE}" card type to "${this.NOTE_TYPE}"`);
+    }
+  }
+
+  async updateTemplates(
+    frontSrc: string,
+    backSrc: string,
+    clozeFrontSrc: string,
+    clozeBackSrc: string,
+  ) {
+    await this.ensureClozeTemplateExists(clozeFrontSrc, clozeBackSrc);
+
     const result = await AnkiConnect.call("updateModelTemplates", {
       model: {
         name: this.NOTE_TYPE,
@@ -44,13 +82,17 @@ class Script {
             Front: frontSrc,
             Back: backSrc,
           },
+          [this.CLOZE_CARD_TYPE]: {
+            Front: clozeFrontSrc,
+            Back: clozeBackSrc,
+          },
         },
       },
     });
 
     log.gray(`updateModelTemplates: ${JSON.stringify(result)}`);
     console.log(
-      `✅ Updated "${this.NOTE_TYPE}" Front/Back from ${basename(this.FRONT_PATH)} and ${basename(this.BACK_PATH)}`,
+      `✅ Updated "${this.NOTE_TYPE}" Mining + Cloze templates`,
     );
   }
 
@@ -69,11 +111,19 @@ class Script {
   }
 
   async run() {
-    const { front, back, style } = await this.readTemplates();
+    const { front, back, clozeFront, clozeBack, style } =
+      await this.readTemplates();
     const frontTemplate = this.applyDataAttributes(front);
     const backTemplate = this.applyDataAttributes(back);
+    const clozeFrontTemplate = this.applyDataAttributes(clozeFront);
+    const clozeBackTemplate = this.applyDataAttributes(clozeBack);
     const styleTemplate = this.buildStyleTemplate(style);
-    await this.updateTemplates(frontTemplate, backTemplate);
+    await this.updateTemplates(
+      frontTemplate,
+      backTemplate,
+      clozeFrontTemplate,
+      clozeBackTemplate,
+    );
     await this.updateStyling(styleTemplate);
   }
 }

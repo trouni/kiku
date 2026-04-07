@@ -41,7 +41,41 @@ export function generateSsrTemplate() {
         >
           <ConfigContextProvider value={[config, setConfig]}>
             <AnkiFieldContextProvider ankiFields={ankiFieldsSkeleton}>
-              <CardStoreContextProvider side="front">
+              <CardStoreContextProvider side="front" cardType="mining">
+                <FieldGroupContextProvider>
+                  <RootFieldGroupContextProvider>
+                    <CtxContextProvider>
+                      <Layout>
+                        <Front />
+                      </Layout>
+                    </CtxContextProvider>
+                  </RootFieldGroupContextProvider>
+                </FieldGroupContextProvider>
+              </CardStoreContextProvider>
+            </AnkiFieldContextProvider>
+          </ConfigContextProvider>
+        </GeneralContextProvider>
+      </CacheContextProvider>
+    </BreakpointContextProvider>
+  ));
+  const clozeFrontSsrTemplate = renderToString(() => (
+    <BreakpointContextProvider>
+      <CacheContextProvider cacheStore={{}}>
+        <GeneralContextProvider
+          aborter={aborter}
+          isAnkiWeb={false}
+          isAnkiDesktop={false}
+          workerPath={undefined}
+          templateDataset={{}}
+          ankiDroidAPI={undefined}
+          startupTime={() => 0}
+          assetsPath=""
+          logger={logger}
+          root={undefined}
+        >
+          <ConfigContextProvider value={[config, setConfig]}>
+            <AnkiFieldContextProvider ankiFields={ankiFieldsSkeleton}>
+              <CardStoreContextProvider side="front" cardType="cloze">
                 <FieldGroupContextProvider>
                   <RootFieldGroupContextProvider>
                     <CtxContextProvider>
@@ -97,6 +131,7 @@ export function generateSsrTemplate() {
 
   const result = {
     frontSsrTemplate,
+    clozeFrontSsrTemplate,
     backSsrTemplate,
     hydrationScript,
   };

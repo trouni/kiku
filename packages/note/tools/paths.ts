@@ -29,6 +29,8 @@ export const paths = {
   "@/template/":                               p("template/"),
   "@/template/front.html":                     p("template/front.html"),
   "@/template/back.html":                      p("template/back.html"),
+  "@/template/cloze_front.html":               p("template/cloze_front.html"),
+  "@/template/cloze_back.html":                p("template/cloze_back.html"),
   "@/template/style.css":                      p("template/style.css"),
   "@/template/_kiku_plugin.js":                p("template/_kiku_plugin.js"),
   "@/template/_kiku_plugin.css":               p("template/_kiku_plugin.css"),
@@ -42,6 +44,8 @@ export const paths = {
 
   "@/.anki-build/_kiku_front.html":            p(".anki-build/_kiku_front.html"),
   "@/.anki-build/_kiku_back.html":             p(".anki-build/_kiku_back.html"),
+  "@/.anki-build/_kiku_cloze_front.html":      p(".anki-build/_kiku_cloze_front.html"),
+  "@/.anki-build/_kiku_cloze_back.html":       p(".anki-build/_kiku_cloze_back.html"),
   "@/.anki-build/_kiku_style.css":             p(".anki-build/_kiku_style.css"),
   "@/.anki-build/_kiku.css":                   p(".anki-build/_kiku.css"),
   "@/.anki-build/_kiku_plugin.js":             p(".anki-build/_kiku_plugin.js"),
