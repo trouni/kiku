@@ -23,6 +23,10 @@ export default function BackBody(props: {
   let modalRef: HTMLDialogElement | undefined;
   const { ankiFields } = useAnkiFieldContext<"back">();
   const [$config] = useConfigContext();
+  const [showTranslation, setShowTranslation] = createSignal(false);
+
+  const hasTranslation = () =>
+    !isHtmlEffectivelyEmpty(ankiFields.SentenceTranslation?.trim());
 
   const glossary = () => {
     // empty glossary if it's the same as main definition
@@ -129,6 +133,20 @@ export default function BackBody(props: {
     >
       <div class="flex flex-col justify-center gap-2 items-center text-center">
         <Sentence />
+        {hasTranslation() && !showTranslation() && (
+          <button
+            class="btn btn-ghost btn-sm text-base-content-soft hover:text-base-content animate-fade-in"
+            on:click={() => setShowTranslation(true)}
+          >
+            Show Translation
+          </button>
+        )}
+        {hasTranslation() && showTranslation() && (
+          <div
+            class="text-base-content-calm text-sm animate-fade-in"
+            innerHTML={ankiFields.SentenceTranslation}
+          ></div>
+        )}
       </div>
       {pages().length > 0 && (
         <div class="animate-fade-in" {...definitionDataset()}>

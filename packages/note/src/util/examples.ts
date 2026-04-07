@@ -31,7 +31,8 @@ export const exampleFields1: AnkiFields = {
   "furigana:Sentence": "<b>十中八九</b>せこい小遣い稼ぎだと思う<br>Hey there! Thanks a lot for downloading Lapis! Please refer to its <a href=\"https://github.com/donkuri/lapis\">documentation</a> to learn more about the note type!",
   "kanji:Sentence": "<b>十中八九</b>せこい小遣い稼ぎだと思う<br>Hey there! Thanks a lot for downloading Lapis! Please refer to its <a href=\"https://github.com/donkuri/lapis\">documentation</a> to learn more about the note type!",
   "furigana:SentenceFurigana": "<b><ruby><rb>十中八九</rb><rt>じっちゅうはっく</rt></ruby></b>せこい<ruby><rb>小遣</rb><rt>こづか</rt></ruby>い<ruby><rb>稼</rb><rt>かせ</rt></ruby>ぎだと<ruby><rb>思</rb><rt>おも</rt></ruby>う<br>Hey there! <br>Thanks a lot for downloading Lapis. Please refer to its <a href=\"https://github.com/donkuri/lapis\">documentation</a> to learn more about the note type!",
-  "kana:SentenceFurigana": "<b>じっちゅうはっく</b>せこいこづかいかせぎだとおもう<br>Hey there! <br>Thanks a lot for downloading Lapis. Please refer to its <a href=\"https://github.com/donkuri/lapis\">documentation</a> to learn more about the note type!"
+  "kana:SentenceFurigana": "<b>じっちゅうはっく</b>せこいこづかいかせぎだとおもう<br>Hey there! <br>Thanks a lot for downloading Lapis. Please refer to its <a href=\"https://github.com/donkuri/lapis\">documentation</a> to learn more about the note type!",
+  "SentenceTranslation": ""
 };
 
 // biome-ignore format: this looks nicer
@@ -65,7 +66,8 @@ export const exampleFields2: AnkiFields = {
   "furigana:Sentence": "「こんなに食べたら<b>太っちゃいそう</b>だけど、仕方ないね」",
   "kanji:Sentence": "「こんなに食べたら<b>太っちゃいそう</b>だけど、仕方ないね」",
   "furigana:SentenceFurigana": "<span class=\"term\">「</span><span class=\"term\">こんなに</span><span class=\"term\"><ruby>食<rt>た</rt></ruby>べたら</span><span class=\"term\"><ruby>太<rt>ふと</rt></ruby>っちゃいそう</span><span class=\"term\">だけど、</span><span class=\"term\"><ruby>仕方<rt>しかた</rt></ruby>ないね</span><span class=\"term\">」</span>",
-  "kana:SentenceFurigana": "<span class=\"term\">「</span><span class=\"term\">こんなに</span><span class=\"term\"><ruby>食<rt>た</rt></ruby>べたら</span><span class=\"term\"><ruby>太<rt>ふと</rt></ruby>っちゃいそう</span><span class=\"term\">だけど、</span><span class=\"term\"><ruby>仕方<rt>しかた</rt></ruby>ないね</span><span class=\"term\">」</span>"
+  "kana:SentenceFurigana": "<span class=\"term\">「</span><span class=\"term\">こんなに</span><span class=\"term\"><ruby>食<rt>た</rt></ruby>べたら</span><span class=\"term\"><ruby>太<rt>ふと</rt></ruby>っちゃいそう</span><span class=\"term\">だけど、</span><span class=\"term\"><ruby>仕方<rt>しかた</rt></ruby>ないね</span><span class=\"term\">」</span>",
+  "SentenceTranslation": ""
 }
 
 // biome-ignore format: this looks nicer
@@ -99,7 +101,8 @@ export const exampleFields3: AnkiFields = {
   "furigana:Sentence": "本当に…<br>本当に <b>かたじけない</b>です！",
   "kanji:Sentence": "本当に…<br>本当に <b>かたじけない</b>です！",
   "furigana:SentenceFurigana": "",
-  "kana:SentenceFurigana": ""
+  "kana:SentenceFurigana": "",
+  "SentenceTranslation": ""
 }
 
 // biome-ignore format: this looks nicer
@@ -133,7 +136,8 @@ export const exampleFields4: AnkiFields = {
   "furigana:Sentence": "まひるんも ＯＫしてくれたから！<br>（周）<b>押し切られた</b>な…",
   "kanji:Sentence": "まひるんも ＯＫしてくれたから！<br>（周）<b>押し切られた</b>な…",
   "furigana:SentenceFurigana": "",
-  "kana:SentenceFurigana": ""
+  "kana:SentenceFurigana": "",
+  "SentenceTranslation": ""
 }
 
 // biome-ignore format: this looks nicer
@@ -167,7 +171,8 @@ export const exampleFields5: AnkiFields = {
   "furigana:Sentence": "それからみんなで一緒に寮に帰って、みくりのお雑煮と苺華のおせちに舌<b>鼓</b>を打ったのだった。",
   "kanji:Sentence": "それからみんなで一緒に寮に帰って、みくりのお雑煮と苺華のおせちに舌<b>鼓</b>を打ったのだった。",
   "furigana:SentenceFurigana": "<span class=\"term\">それから</span><span class=\"term\">みんな</span><span class=\"term\">で</span><span class=\"term\"><ruby>一緒<rt>いっしょ</rt></ruby>に</span><span class=\"term\"><ruby>寮<rt>りょう</rt></ruby></span><span class=\"term\">に</span><span class=\"term\"><ruby>帰<rt>かえ</rt></ruby>って、</span><span class=\"term\">みくり</span><span class=\"term\">の</span><span class=\"term\">お<ruby>雑煮<rt>ぞうに</rt></ruby></span><span class=\"term\">と</span><span class=\"term\"><ruby>苺<rt>いちご</rt></ruby></span><span class=\"term\"><ruby>華<rt>はな</rt></ruby></span><span class=\"term\">の</span><span class=\"term\">おせち</span><span class=\"term\">に</span><span class=\"term\"><ruby>舌鼓<rt>したつづみ</rt></ruby>を<ruby>打<rt>う</rt></ruby>った</span><span class=\"term\">のだ</span><span class=\"term\">った</span><span class=\"term\"><ruby>。<rt>まる</rt></ruby></span>",
-  "kana:SentenceFurigana": "<span class=\"term\">それから</span><span class=\"term\">みんな</span><span class=\"term\">で</span><span class=\"term\"><ruby>一緒<rt>いっしょ</rt></ruby>に</span><span class=\"term\"><ruby>寮<rt>りょう</rt></ruby></span><span class=\"term\">に</span><span class=\"term\"><ruby>帰<rt>かえ</rt></ruby>って、</span><span class=\"term\">みくり</span><span class=\"term\">の</span><span class=\"term\">お<ruby>雑煮<rt>ぞうに</rt></ruby></span><span class=\"term\">と</span><span class=\"term\"><ruby>苺<rt>いちご</rt></ruby></span><span class=\"term\"><ruby>華<rt>はな</rt></ruby></span><span class=\"term\">の</span><span class=\"term\">おせち</span><span class=\"term\">に</span><span class=\"term\"><ruby>舌鼓<rt>したつづみ</rt></ruby>を<ruby>打<rt>う</rt></ruby>った</span><span class=\"term\">のだ</span><span class=\"term\">った</span><span class=\"term\"><ruby>。<rt>まる</rt></ruby></span>"
+  "kana:SentenceFurigana": "<span class=\"term\">それから</span><span class=\"term\">みんな</span><span class=\"term\">で</span><span class=\"term\"><ruby>一緒<rt>いっしょ</rt></ruby>に</span><span class=\"term\"><ruby>寮<rt>りょう</rt></ruby></span><span class=\"term\">に</span><span class=\"term\"><ruby>帰<rt>かえ</rt></ruby>って、</span><span class=\"term\">みくり</span><span class=\"term\">の</span><span class=\"term\">お<ruby>雑煮<rt>ぞうに</rt></ruby></span><span class=\"term\">と</span><span class=\"term\"><ruby>苺<rt>いちご</rt></ruby></span><span class=\"term\"><ruby>華<rt>はな</rt></ruby></span><span class=\"term\">の</span><span class=\"term\">おせち</span><span class=\"term\">に</span><span class=\"term\"><ruby>舌鼓<rt>したつづみ</rt></ruby>を<ruby>打<rt>う</rt></ruby>った</span><span class=\"term\">のだ</span><span class=\"term\">った</span><span class=\"term\"><ruby>。<rt>まる</rt></ruby></span>",
+  "SentenceTranslation": ""
 }
 
 // biome-ignore format: this looks nicer
@@ -201,7 +206,8 @@ export const exampleFields6: AnkiFields = {
   "furigana:Sentence": "ゴールの方程式の<b>からくり</b>は<br>分かったけど",
   "kanji:Sentence": "<span>ゴールの方程式の<b>からくり</b>は<br>分かったけど</span><span>あ… ちょっと<br><b>こびすぎ</b>じゃない？</span>",
   "furigana:SentenceFurigana": "<span>ゴールの<ruby><rb>方程式</rb><rt>ほうていしき</rt></ruby>の<b>からくり</b>は<br><ruby><rb>分</rb><rt>わ</rt></ruby>かったけど</span><span><span class=\"term\">ちょっと</span><span class=\"term\">こびすぎ</span><span class=\"term\">じゃない</span><span class=\"term\">？</span></span>",
-  "kana:SentenceFurigana": "ゴールのほうていしきの<b>からくり</b>は<br>わかったけど"
+  "kana:SentenceFurigana": "ゴールのほうていしきの<b>からくり</b>は<br>わかったけど",
+  "SentenceTranslation": ""
 }
 
 // biome-ignore format: this looks nicer
@@ -235,7 +241,8 @@ export const exampleFields7: AnkiFields = {
   "furigana:Sentence": "あ… ちょっと<br><b>こびすぎ</b>じゃない？",
   "kanji:Sentence": "あ… ちょっと<br><b>こびすぎ</b>じゃない？",
   "furigana:SentenceFurigana": "<span class=\"term\">ちょっと</span><span class=\"term\">こびすぎ</span><span class=\"term\">じゃない</span><span class=\"term\">？</span>",
-  "kana:SentenceFurigana": "<span class=\"term\">ちょっと</span><span class=\"term\">こびすぎ</span><span class=\"term\">じゃない</span><span class=\"term\">？</span>"
+  "kana:SentenceFurigana": "<span class=\"term\">ちょっと</span><span class=\"term\">こびすぎ</span><span class=\"term\">じゃない</span><span class=\"term\">？</span>",
+  "SentenceTranslation": ""
 }
 
 // biome-ignore format: this looks nicer
@@ -269,7 +276,8 @@ export const exampleFields8: AnkiFields = {
   "furigana:Sentence": "「じゃあもう<rめおと><b>夫婦</b>だよね？」</rめおと>",
   "kanji:Sentence": "「じゃあもう<rめおと><b>夫婦</b>だよね？」</rめおと>",
   "furigana:SentenceFurigana": "<span class=\"term\">「</span><span class=\"term\">じゃあ</span><span class=\"term\">もう</span><span class=\"term\"><r< span=\"\"><span class=\"term\">めおと</span><span class=\"term\">&gt;</span><span class=\"term\"><ruby>夫婦<rt>めおと</rt></ruby></span><span class=\"term\"></span><span class=\"term\">だよね</span><span class=\"term\">？</span><span class=\"term\">」</span></r<></span>",
-  "kana:SentenceFurigana": "<span class=\"term\">「</span><span class=\"term\">じゃあ</span><span class=\"term\">もう</span><span class=\"term\"><r< span=\"\"><span class=\"term\">めおと</span><span class=\"term\">&gt;</span><span class=\"term\"><ruby>夫婦<rt>めおと</rt></ruby></span><span class=\"term\"></span><span class=\"term\">だよね</span><span class=\"term\">？</span><span class=\"term\">」</span></r<></span>"
+  "kana:SentenceFurigana": "<span class=\"term\">「</span><span class=\"term\">じゃあ</span><span class=\"term\">もう</span><span class=\"term\"><r< span=\"\"><span class=\"term\">めおと</span><span class=\"term\">&gt;</span><span class=\"term\"><ruby>夫婦<rt>めおと</rt></ruby></span><span class=\"term\"></span><span class=\"term\">だよね</span><span class=\"term\">？</span><span class=\"term\">」</span></r<></span>",
+  "SentenceTranslation": ""
 }
 
 // biome-ignore format: this looks nicer
@@ -303,7 +311,8 @@ export const exampleFields9: AnkiFields = {
   "furigana:Sentence": "<span data-group-id=\"10\">どうせ勇者の捕縛に<b>貢献</b>すれば➡</span>このお店に<b>貢献</b>するために―",
   "kanji:Sentence": "<span data-group-id=\"10\">どうせ勇者の捕縛に<b>貢献</b>すれば➡</span>このお店に<b>貢献</b>するために―",
   "furigana:SentenceFurigana": "",
-  "kana:SentenceFurigana": ""
+  "kana:SentenceFurigana": "",
+  "SentenceTranslation": ""
 }
 
 // biome-ignore format: this looks nicer
@@ -337,7 +346,8 @@ export const exampleFields10: AnkiFields = {
   "furigana:Sentence": "どうしてもって言うから台所からコッソリもってきたけど．．．",
   "kanji:Sentence": "どうしてもって言うから台所からコッソリもってきたけど．．．",
   "furigana:SentenceFurigana": "",
-  "kana:SentenceFurigana": ""
+  "kana:SentenceFurigana": "",
+  "SentenceTranslation": ""
 }
 
 //biome-ignore format: this looks nicer
@@ -371,7 +381,8 @@ export const exampleFields11: AnkiFields = {
   "furigana:Sentence": "（部員）なんか腹<b>減った</b>",
   "kanji:Sentence": "（部員）なんか腹<b>減った</b>",
   "furigana:SentenceFurigana": "（<ruby><rb>部員</rb><rt>ぶいん</rt></ruby>）なんか<ruby><rb>腹</rb><rt>はら</rt></ruby><b><ruby><rb>減</rb><rt>へ</rt></ruby>った</b>",
-  "kana:SentenceFurigana": "（ぶいん）なんかはら<b>へった</b>"
+  "kana:SentenceFurigana": "（ぶいん）なんかはら<b>へった</b>",
+  "SentenceTranslation": ""
 }
 
 //biome-ignore format: this looks nicer
@@ -405,7 +416,8 @@ export const exampleFields12: AnkiFields = {
   "furigana:Sentence": "（夜明）<br>被験者への<b>過度</b>な干渉はＮＧ",
   "kanji:Sentence": "（夜明）<br>被験者への<b>過度</b>な干渉はＮＧ",
   "furigana:SentenceFurigana": "",
-  "kana:SentenceFurigana": ""
+  "kana:SentenceFurigana": "",
+  "SentenceTranslation": ""
 }
 
 // biome-ignore format: this looks nicer
@@ -439,7 +451,8 @@ export const exampleFields13: AnkiFields = {
   "furigana:Sentence": "心は<b>醜い</b>が<br>美しい手と顔をした女だ",
   "kanji:Sentence": "心は<b>醜い</b>が<br>美しい手と顔をした女だ",
   "furigana:SentenceFurigana": "",
-  "kana:SentenceFurigana": ""
+  "kana:SentenceFurigana": "",
+  "SentenceTranslation": ""
 }
 
 // biome-ignore format: this looks nicer
@@ -473,7 +486,8 @@ export const exampleFields14: AnkiFields = {
   "furigana:Sentence": "（ウララ）<br>今日は <b>惜しかった</b>ね～",
   "kanji:Sentence": "（ウララ）<br>今日は <b>惜しかった</b>ね～",
   "furigana:SentenceFurigana": "（ウララ）<br><span class=\"ajt__furigana_list\"><ruby><ruby>今日<rt>こんにち</rt></ruby><rt>きょう</rt></ruby><div class=\"ajt__info_popup\"><div class=\"ajt__frame_title\">Information</div><div class=\"ajt__frame_content\"><ol class=\"ajt__readings_list\"><li>こんにち</li><li>きょう</li><li>こんち</li></ol></div></div></span>は <b><ruby><rb>惜</rb><rt>お</rt></ruby>しかった</b>ね～",
-  "kana:SentenceFurigana": "（ウララ）<br>こんにち,きょう,こんちは <b>おしかった</b>ね～"
+  "kana:SentenceFurigana": "（ウララ）<br>こんにち,きょう,こんちは <b>おしかった</b>ね～",
+  "SentenceTranslation": ""
 }
 
 // biome-ignore format: this looks nicer
@@ -507,7 +521,8 @@ const exampleFields15: AnkiFields = {
   "furigana:Sentence": "<span data-group-id=\"11\">これで 少しは<br>世の中に<b>貢献</b>できるかな</span><span data-group-id=\"10\">どうせ勇者の捕縛に<b>貢献</b>すれば➡</span>このお店に<b>貢献</b>するために―",
   "kanji:Sentence": "<span data-group-id=\"11\">これで 少しは<br>世の中に<b>貢献</b>できるかな</span><span data-group-id=\"10\">どうせ勇者の捕縛に<b>貢献</b>すれば➡</span>このお店に<b>貢献</b>するために―",
   "furigana:SentenceFurigana": "",
-  "kana:SentenceFurigana": ""
+  "kana:SentenceFurigana": "",
+  "SentenceTranslation": ""
 }
 
 // biome-ignore format: this looks nicer
@@ -541,7 +556,8 @@ const exampleFields16: AnkiFields = {
   "furigana:Sentence": "<b>品質</b>を追求したんだよ",
   "kanji:Sentence": "<b>品質</b>を追求したんだよ",
   "furigana:SentenceFurigana": "",
-  "kana:SentenceFurigana": ""
+  "kana:SentenceFurigana": "",
+  "SentenceTranslation": ""
 }
 
 // biome-ignore format: this looks nicer
@@ -575,7 +591,8 @@ const exampleFields17: AnkiFields = {
   "furigana:Sentence": "「ふふふっ、こんな時間だけど、帰ったらごはんにしようか。<b>おせち</b>たくさんあるから、好きなだけ食べてね」",
   "kanji:Sentence": "「ふふふっ、こんな時間だけど、帰ったらごはんにしようか。<b>おせち</b>たくさんあるから、好きなだけ食べてね」",
   "furigana:SentenceFurigana": "<span class=\"term\">「</span><span class=\"term\">ふふふ</span><span class=\"term\">っ、こ</span><span class=\"term\">んな</span><span class=\"term\"><ruby>時間<rt>じかん</rt></ruby></span><span class=\"term\">だけど、</span><span class=\"term\"><ruby>帰<rt>かえ</rt></ruby>ったら</span><span class=\"term\">ごはん</span><span class=\"term\">にし</span><span class=\"term\">ようか</span><span class=\"term\"><ruby>。<rt>まる</rt></ruby></span><span class=\"term\">おせち</span><span class=\"term\">たくさん</span><span class=\"term\">あるから、</span><span class=\"term\"><ruby>好<rt>す</rt></ruby>きなだけ</span><span class=\"term\"><ruby>食<rt>た</rt></ruby>べて</span><span class=\"term\">ね</span><span class=\"term\">」</span>",
-  "kana:SentenceFurigana": "<span class=\"term\">「</span><span class=\"term\">ふふふ</span><span class=\"term\">っ、こ</span><span class=\"term\">んな</span><span class=\"term\"><ruby>時間<rt>じかん</rt></ruby></span><span class=\"term\">だけど、</span><span class=\"term\"><ruby>帰<rt>かえ</rt></ruby>ったら</span><span class=\"term\">ごはん</span><span class=\"term\">にし</span><span class=\"term\">ようか</span><span class=\"term\"><ruby>。<rt>まる</rt></ruby></span><span class=\"term\">おせち</span><span class=\"term\">たくさん</span><span class=\"term\">あるから、</span><span class=\"term\"><ruby>好<rt>す</rt></ruby>きなだけ</span><span class=\"term\"><ruby>食<rt>た</rt></ruby>べて</span><span class=\"term\">ね</span><span class=\"term\">」</span>"
+  "kana:SentenceFurigana": "<span class=\"term\">「</span><span class=\"term\">ふふふ</span><span class=\"term\">っ、こ</span><span class=\"term\">んな</span><span class=\"term\"><ruby>時間<rt>じかん</rt></ruby></span><span class=\"term\">だけど、</span><span class=\"term\"><ruby>帰<rt>かえ</rt></ruby>ったら</span><span class=\"term\">ごはん</span><span class=\"term\">にし</span><span class=\"term\">ようか</span><span class=\"term\"><ruby>。<rt>まる</rt></ruby></span><span class=\"term\">おせち</span><span class=\"term\">たくさん</span><span class=\"term\">あるから、</span><span class=\"term\"><ruby>好<rt>す</rt></ruby>きなだけ</span><span class=\"term\"><ruby>食<rt>た</rt></ruby>べて</span><span class=\"term\">ね</span><span class=\"term\">」</span>",
+  "SentenceTranslation": ""
 }
 
 //  biome-ignore format: this looks nicer
@@ -609,7 +626,8 @@ const exampleFields18: AnkiFields = {
   "furigana:Sentence": "<b>おかず</b>買いに行きましょうか",
   "kanji:Sentence": "<b>おかず</b>買いに行きましょうか",
   "furigana:SentenceFurigana": "<span class=\"term\">おかず</span><span class=\"term\"><ruby>買<rt>か</rt></ruby>い</span><span class=\"term\">に</span><span class=\"term\"><ruby>行<rt>い</rt></ruby>きましょう</span><span class=\"term\">か</span>",
-  "kana:SentenceFurigana": "<span class=\"term\">おかず</span><span class=\"term\"><ruby>買<rt>か</rt></ruby>い</span><span class=\"term\">に</span><span class=\"term\"><ruby>行<rt>い</rt></ruby>きましょう</span><span class=\"term\">か</span>"
+  "kana:SentenceFurigana": "<span class=\"term\">おかず</span><span class=\"term\"><ruby>買<rt>か</rt></ruby>い</span><span class=\"term\">に</span><span class=\"term\"><ruby>行<rt>い</rt></ruby>きましょう</span><span class=\"term\">か</span>",
+  "SentenceTranslation": ""
 }
 
 // biome-ignore format: this looks nicer
@@ -643,7 +661,8 @@ const exampleFields19: AnkiFields = {
   "furigana:Sentence": "（ほたる）すごい<b>葛藤</b>してる…",
   "kanji:Sentence": "（ほたる）すごい<b>葛藤</b>してる…",
   "furigana:SentenceFurigana": "<span class=\"term\">（</span><span class=\"term\">ほたる</span><span class=\"term\">）</span><span class=\"term\">すごい</span><span class=\"term\"><ruby>葛藤<rt>かっとう</rt></ruby></span><span class=\"term\">してる</span><span class=\"term\">…</span>",
-  "kana:SentenceFurigana": "<span class=\"term\">（</span><span class=\"term\">ほたる</span><span class=\"term\">）</span><span class=\"term\">すごい</span><span class=\"term\"><ruby>葛藤<rt>かっとう</rt></ruby></span><span class=\"term\">してる</span><span class=\"term\">…</span>"
+  "kana:SentenceFurigana": "<span class=\"term\">（</span><span class=\"term\">ほたる</span><span class=\"term\">）</span><span class=\"term\">すごい</span><span class=\"term\"><ruby>葛藤<rt>かっとう</rt></ruby></span><span class=\"term\">してる</span><span class=\"term\">…</span>",
+  "SentenceTranslation": ""
 }
 
 // biome-ignore format: this looks nicer
@@ -678,7 +697,8 @@ const exampleFields20: AnkiFields = {
   "furigana:Sentence": "衣鈴　　「夢を食べるのは<b>獏</b>。ナイトメアは悪夢を象徴するって言われてる黒い馬──夢魔のこと」",
   "kanji:Sentence": "衣鈴　　「夢を食べるのは<b>獏</b>。ナイトメアは悪夢を象徴するって言われてる黒い馬──夢魔のこと」",
   "furigana:SentenceFurigana": "",
-  "kana:SentenceFurigana": ""
+  "kana:SentenceFurigana": "",
+  "SentenceTranslation": ""
 }
 
 export const exampleFields = exampleFields20;

@@ -12,6 +12,7 @@ export type AnkiFields = {
   Sentence: string;
   SentenceFurigana: string;
   SentenceAudio: string;
+  SentenceTranslation: string;
   Picture: string;
   Glossary: string;
   Hint: string;
@@ -44,6 +45,7 @@ const frontKeys = [
   "SentenceFurigana",
   "furigana:SentenceFurigana",
   "kana:SentenceFurigana",
+  "SentenceTranslation",
 
   "IsWordAndSentenceCard",
   "IsSentenceCard",
@@ -128,6 +130,7 @@ export const ankiFieldsSkeleton: AnkiFields = {
   "Sentence": "",
   "SentenceFurigana": "",
   "SentenceAudio": "",
+  "SentenceTranslation": "",
   "Picture": "",
   "Glossary": "",
   "Hint": "",

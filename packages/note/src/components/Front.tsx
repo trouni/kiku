@@ -23,6 +23,7 @@ export function Front() {
   const { ankiFields } = useAnkiFieldContext<"front">();
   const [clicked, setClicked] = createSignal(false);
   const [hideExpression, setHideExpression] = createSignal(false);
+  const [showSentence, setShowSentence] = createSignal(false);
   const { $group } = useFieldGroupContext();
   const [$config] = useConfigContext();
   const loadPlugin = useLoadPlugin();
@@ -69,7 +70,20 @@ export function Front() {
     if (ankiFields.IsClickCard && clicked()) {
       return false;
     }
+    if (showSentence()) {
+      return false;
+    }
     return true;
+  };
+
+  const isRegularWordCard = () => {
+    return (
+      !ankiFields.IsSentenceCard &&
+      !ankiFields.IsWordAndSentenceCard &&
+      !ankiFields.IsAudioCard &&
+      !ankiFields.IsClickCard &&
+      $group.sentenceField
+    );
   };
 
   const hintFieldDataset: () => DatasetProp = () => ({
@@ -120,6 +134,16 @@ export function Front() {
         </div>
         {$card.ready && !hidden() && <FieldGroupPaginationSection />}
       </div>
+      {$card.ready && isRegularWordCard() && !showSentence() && (
+        <div class="flex justify-center animate-fade-in">
+          <button
+            class="btn btn-ghost btn-sm text-base-content-soft hover:text-base-content"
+            on:click={() => setShowSentence(true)}
+          >
+            Show Sentence
+          </button>
+        </div>
+      )}
       <div
         class="flex flex-col gap-4 items-center text-center justify-center"
         classList={{
