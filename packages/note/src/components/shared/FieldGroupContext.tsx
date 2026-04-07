@@ -9,6 +9,7 @@ import { useGeneralContext } from "./GeneralContext";
 
 export type GroupStore = {
   sentenceField: string;
+  sentenceTranslationField: string;
   pictureField: string;
   sentenceAudioField: string;
   miscInfoField: string;
@@ -41,8 +42,10 @@ export function FieldGroupContextProvider(props: { children: JSX.Element }) {
   const pictureField = ankiFields.Picture;
   const sentenceAudioField = ankiFields.SentenceAudio;
   const miscInfoField = ankiFields.MiscInfo;
+  const sentenceTranslationField = ankiFields.SentenceTranslation;
   const [$group, $setGroup] = createStore<GroupStore>({
     sentenceField: sentenceField(),
+    sentenceTranslationField: sentenceTranslationField ?? "",
     pictureField,
     sentenceAudioField,
     miscInfoField,
@@ -104,7 +107,22 @@ export function FieldGroupContextProvider(props: { children: JSX.Element }) {
       miscInfoFieldWithoutGroup,
     );
 
-    // each group may contain multiple img. img without group id will be given group id 0
+    const sentenceTranslationFieldDoc = parseHtml(sentenceTranslationField ?? "");
+    const sentenceTranslationFieldWithGroup =
+      sentenceTranslationFieldDoc.querySelectorAll("[data-group-id]");
+    sentenceTranslationFieldWithGroup.forEach((el) => {
+      const id = (el as HTMLSpanElement).dataset.groupId;
+      addIds(id);
+    });
+
+    const sentenceTranslationFieldWithoutGroup = Array.from(
+      sentenceTranslationFieldDoc.body.childNodes,
+    ).filter((el) => !(el as HTMLSpanElement).dataset?.groupId);
+    const sentenceTranslationFieldWithoutGroupHtml = nodesToString(
+      sentenceTranslationFieldWithoutGroup,
+    );
+
+    // each img has their own separate page. img without group id will be given group id <= 0
     const pictureFieldDoc = parseHtml(pictureField);
     const pictureFieldWithGroup = pictureFieldDoc.querySelectorAll("img");
     pictureFieldWithGroup.forEach((el) => {
@@ -124,12 +142,18 @@ export function FieldGroupContextProvider(props: { children: JSX.Element }) {
         .some((id) => id <= 0) &&
       (sentenceFieldWithoutGroupHtml.trim() ||
         sentenceAudioFieldWithoutGroupHtml.trim() ||
-        miscInfoFieldWithoutGroupHtml.trim())
+        miscInfoFieldWithoutGroupHtml.trim() ||
+        sentenceTranslationFieldWithoutGroupHtml.trim())
     ) {
       const img = document.createElement("img");
       img.dataset.groupId = "0";
       dummyImg = img;
       addIds("0");
+    }
+
+    // Randomize initial index for cloze cards so users see varied sentences
+    if ($card.cardType === "cloze" && $group.ids.length > 1 && $group.index === 0) {
+      $setGroup("index", Math.floor(Math.random() * $group.ids.length));
     }
 
     if ($group.ids.length > 0) {
@@ -138,6 +162,7 @@ export function FieldGroupContextProvider(props: { children: JSX.Element }) {
       let sentenceField: string | undefined;
       let sentenceAudioField: string | undefined;
       let miscInfoField: string | undefined;
+      let sentenceTranslationField: string | undefined;
       let pictureField: string | undefined;
 
       const filterById = (nodes: Iterable<Node> | ArrayLike<Node>) =>
@@ -153,6 +178,10 @@ export function FieldGroupContextProvider(props: { children: JSX.Element }) {
         sentenceAudioField = filterById(sentenceAudioFieldWithGroup);
         miscInfoField = filterById(miscInfoFieldWithGroup);
 
+        sentenceTranslationField = Array.from(sentenceTranslationFieldWithGroup).find(
+          (el) => (el as HTMLSpanElement).dataset.groupId === id.toString(),
+        )?.outerHTML ?? (sentenceTranslationFieldWithoutGroupHtml || undefined);
+
         const pictureFieldArray = Array.from(pictureFieldWithGroup);
         if (dummyImg) pictureFieldArray.push(dummyImg);
         pictureField = filterById(pictureFieldArray);
@@ -160,18 +189,21 @@ export function FieldGroupContextProvider(props: { children: JSX.Element }) {
         sentenceField = sentenceFieldWithoutGroupHtml;
         sentenceAudioField = sentenceAudioFieldWithoutGroupHtml;
         miscInfoField = miscInfoFieldWithoutGroupHtml;
+        sentenceTranslationField = sentenceTranslationFieldWithoutGroupHtml;
 
         const pictureFieldArray = Array.from(pictureFieldWithGroup);
         if (dummyImg) pictureFieldArray.push(dummyImg);
         pictureField = filterById(pictureFieldArray);
       }
       $setGroup("sentenceField", sentenceField ?? "");
+      $setGroup("sentenceTranslationField", sentenceTranslationField ?? "");
       $setGroup("sentenceAudioField", sentenceAudioField ?? "");
       $setGroup("miscInfoField", miscInfoField ?? "");
       $setGroup("pictureField", pictureField ?? "");
 
       // biome-ignore lint format: this looks nicer
       { $general.logger.info("[Groups] sentenceField:", sentenceField);
+        $general.logger.info("[Groups] sentenceTranslationField:", sentenceTranslationField);
         $general.logger.info("[Groups] sentenceAudioField:", sentenceAudioField,);
         $general.logger.info("[Groups] miscInfoField:", miscInfoField);
         $general.logger.info("[Groups] pictureField:", pictureField); }

@@ -67,6 +67,7 @@ export default function MergeContextModal() {
       noteId: note?.noteId,
       Sentence: note?.fields.Sentence.value ?? "",
       SentenceFurigana: note?.fields.SentenceFurigana.value ?? "",
+      SentenceTranslation: note?.fields.SentenceTranslation?.value ?? "",
       SentenceAudio: note?.fields.SentenceAudio.value ?? "",
       MiscInfo: note?.fields.MiscInfo.value ?? "",
       Picture: note?.fields.Picture.value ?? "",
@@ -330,6 +331,10 @@ export default function MergeContextModal() {
                   content={mergedReadable().SentenceFurigana}
                 />
                 <FieldPreview
+                  title="SentenceTranslation"
+                  content={mergedReadable().SentenceTranslation}
+                />
+                <FieldPreview
                   title="SentenceAudio"
                   content={mergedReadable().SentenceAudio}
                 />
@@ -429,6 +434,7 @@ type ContextField = {
   noteId: number | undefined;
   Sentence: string;
   SentenceFurigana: string;
+  SentenceTranslation: string;
   SentenceAudio: string;
   MiscInfo: string;
   Picture: string;
@@ -450,6 +456,7 @@ function mergeContext(base: ContextField, extra: ContextField) {
   const merged = {
     Sentence: normalizedBase.Sentence + normalizedExtra.Sentence,
     SentenceFurigana: getSentenceFurigana(),
+    SentenceTranslation: normalizedBase.SentenceTranslation + normalizedExtra.SentenceTranslation,
     SentenceAudio: normalizedBase.SentenceAudio + normalizedExtra.SentenceAudio,
     MiscInfo: normalizedBase.MiscInfo + normalizedExtra.MiscInfo,
     Picture: normalizedBase.Picture + normalizedExtra.Picture,
@@ -473,6 +480,12 @@ function mergeContext(base: ContextField, extra: ContextField) {
     sentenceFuriganaDoc.querySelectorAll("[data-group-id]");
   const SentenceFurigana = sortGroup(sentenceFuriganaWithGroup);
   merged.SentenceFurigana = nodesToString(SentenceFurigana);
+
+  const sentenceTranslationDoc = parseHtml(merged.SentenceTranslation);
+  const sentenceTranslationWithGroup =
+    sentenceTranslationDoc.querySelectorAll("[data-group-id]");
+  const SentenceTranslation = sortGroup(sentenceTranslationWithGroup);
+  merged.SentenceTranslation = nodesToString(SentenceTranslation);
 
   const sentenceAudioDoc = parseHtml(merged.SentenceAudio);
   const sentenceAudioWithGroup =
@@ -510,6 +523,13 @@ function normalizeFields(fields: ContextField) {
     sentenceFuriganaDoc.querySelectorAll("[data-group-id]");
   const sentenceFuriganaWithoutGroup = Array.from(
     sentenceFuriganaDoc.body.childNodes,
+  ).filter((el) => !(el as HTMLSpanElement).dataset?.groupId);
+
+  const sentenceTranslationDoc = parseHtml(fields.SentenceTranslation);
+  const sentenceTranslationWithGroup =
+    sentenceTranslationDoc.querySelectorAll("[data-group-id]");
+  const sentenceTranslationWithoutGroup = Array.from(
+    sentenceTranslationDoc.body.childNodes,
   ).filter((el) => !(el as HTMLSpanElement).dataset?.groupId);
 
   const sentenceAudioDoc = parseHtml(fields.SentenceAudio);
@@ -550,6 +570,10 @@ function normalizeFields(fields: ContextField) {
     nodesToString(Array.from(sentenceFuriganaWithGroup)).trim() +
     wrapInSpan(nodesToString(sentenceFuriganaWithoutGroup).trim());
 
+  const SentenceTranslation =
+    nodesToString(Array.from(sentenceTranslationWithGroup)).trim() +
+    wrapInSpan(nodesToString(sentenceTranslationWithoutGroup).trim());
+
   const SentenceAudio =
     nodesToString(Array.from(sentenceAudioWithGroup)).trim() +
     wrapInSpan(nodesToString(sentenceAudioWithoutGroup).trim());
@@ -565,6 +589,7 @@ function normalizeFields(fields: ContextField) {
   return {
     Sentence,
     SentenceFurigana,
+    SentenceTranslation,
     SentenceAudio,
     MiscInfo,
     Picture,
@@ -574,6 +599,7 @@ function normalizeFields(fields: ContextField) {
 function parseMergedIntoReadable(fields: {
   Sentence: string;
   SentenceFurigana: string;
+  SentenceTranslation: string;
   SentenceAudio: string;
   MiscInfo: string;
   Picture: string;
@@ -617,6 +643,12 @@ function parseMergedIntoReadable(fields: {
     (n) => n.textContent ?? "",
   );
 
+  const sentenceTranslation = extractGroupedText(
+    parseHtml(fields.SentenceTranslation),
+    "[data-group-id]",
+    (n) => n.textContent ?? "",
+  );
+
   const sentenceAudio = extractGroupedText(
     parseHtml(fields.SentenceAudio),
     "[data-group-id]",
@@ -638,6 +670,7 @@ function parseMergedIntoReadable(fields: {
   return {
     Sentence: sentence.text,
     SentenceFurigana: sentenceFurigana.text,
+    SentenceTranslation: sentenceTranslation.text,
     SentenceAudio: sentenceAudio.text,
     MiscInfo: miscInfo.text,
     Picture: picture.text,
@@ -645,6 +678,7 @@ function parseMergedIntoReadable(fields: {
     duplicates: {
       Sentence: sentence.duplicates,
       SentenceFurigana: sentenceFurigana.duplicates,
+      SentenceTranslation: sentenceTranslation.duplicates,
       SentenceAudio: sentenceAudio.duplicates,
       MiscInfo: miscInfo.duplicates,
       Picture: picture.duplicates,

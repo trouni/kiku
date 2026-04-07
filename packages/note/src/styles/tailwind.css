@@ -231,6 +231,13 @@
     }
   }
 
+  .translation-hint {
+    @apply hidden;
+    &[data-has-translation="true"] {
+      @apply flex;
+    }
+  }
+
   [data-mod-vertical="true"] .vertical-rl {
     writing-mode: vertical-rl;
   }

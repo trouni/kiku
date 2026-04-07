@@ -189,6 +189,7 @@ export type Dataset = {
   "data-has-pitch": string
   "data-has-hint": string
   "data-has-picture": string
+  "data-has-translation": string
   "data-dictionary": string
 };
 

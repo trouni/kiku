@@ -12,6 +12,7 @@ import { isHtmlEffectivelyEmpty, parseHtml } from "#/util/general";
 import { useAnkiFieldContext } from "../shared/AnkiFieldsContext";
 import { useConfigContext } from "../shared/ConfigContext";
 import { useCtxContext } from "../shared/CtxContext";
+import { useFieldGroupContext } from "../shared/FieldGroupContext";
 import { useGeneralContext } from "../shared/GeneralContext";
 import DefinitionPictureSection from "./DefinitionPictureSection";
 import Sentence from "./Sentence";
@@ -22,11 +23,12 @@ export default function BackBody(props: {
   let definitionEl: HTMLDivElement | undefined;
   let modalRef: HTMLDialogElement | undefined;
   const { ankiFields } = useAnkiFieldContext<"back">();
+  const { $group } = useFieldGroupContext();
   const [$config] = useConfigContext();
   const [showTranslation, setShowTranslation] = createSignal(false);
 
   const hasTranslation = () =>
-    !isHtmlEffectivelyEmpty(ankiFields.SentenceTranslation?.trim());
+    !isHtmlEffectivelyEmpty($group.sentenceTranslationField?.trim());
 
   const glossary = () => {
     // empty glossary if it's the same as main definition
@@ -144,7 +146,7 @@ export default function BackBody(props: {
         {hasTranslation() && showTranslation() && (
           <div
             class="text-base-content-calm text-sm animate-fade-in"
-            innerHTML={ankiFields.SentenceTranslation}
+            innerHTML={$group.sentenceTranslationField}
           ></div>
         )}
       </div>
