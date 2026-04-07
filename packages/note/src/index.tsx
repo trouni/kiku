@@ -37,6 +37,7 @@ import "./styles/tailwind.css";
 export async function init({
   root,
   side,
+  cardType = "mining",
   ankiFields,
   ssr,
   config = defaultConfig,
@@ -52,6 +53,7 @@ export async function init({
 }: {
   root: HTMLElement;
   side: "front" | "back";
+  cardType?: "mining" | "cloze";
   ankiFields: AnkiFields;
   ssr?: boolean;
   config?: KikuConfig | ((defaultConfig: KikuConfig) => KikuConfig);
@@ -91,7 +93,7 @@ export async function init({
         >
           <ConfigContextProvider value={[$config, $setConfig]}>
             <AnkiFieldContextProvider ankiFields={ankiFields}>
-              <CardStoreContextProvider side={side}>
+              <CardStoreContextProvider side={side} cardType={cardType}>
                 <FieldGroupContextProvider>
                   <RootFieldGroupContextProvider>
                     <CtxContextProvider>
@@ -167,6 +169,8 @@ export async function initAnki({
         throw new Error("root not found");
       }
     }
+    const cardType =
+      (root.dataset.cardType as "mining" | "cloze") ?? "mining";
     const rootDataset = {
       theme: root.dataset.theme,
       blurNsfw: root.dataset.blurNsfw,
@@ -246,6 +250,7 @@ export async function initAnki({
     const res = await init({
       root,
       side,
+      cardType,
       ankiFields,
       ssr,
       config,

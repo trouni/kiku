@@ -6,6 +6,8 @@ const assets = {
   "_kiku_config.json": "_kiku_config.json",
   "_kiku_front.html": "_kiku_front.html",
   "_kiku_back.html": "_kiku_back.html",
+  "_kiku_cloze_front.html": "_kiku_cloze_front.html",
+  "_kiku_cloze_back.html": "_kiku_cloze_back.html",
   "_kiku_style.css": "_kiku_style.css",
   "_kiku_notes_manifest.json": "_kiku_notes_manifest.json",
   "_kiku_db_main.tar": "_kiku_db_main.tar",
@@ -30,6 +32,7 @@ export const constants = {
   KIKU_VERSION: version,
   KIKU_NOTE_TYPE: "Kiku",
   KIKU_CARD_TYPE: "Mining",
+  KIKU_CLOZE_CARD_TYPE: "Cloze",
   key: {
     "kiku-config": "kiku-config",
     "kiku-latest-version": "kiku-latest-version",
@@ -50,6 +53,8 @@ export const constants = {
 
     assets["_kiku_front.html"],
     assets["_kiku_back.html"],
+    assets["_kiku_cloze_front.html"],
+    assets["_kiku_cloze_back.html"],
     assets["_kiku_style.css"],
     assets["_kiku.css"],
 

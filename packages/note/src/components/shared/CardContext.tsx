@@ -23,6 +23,7 @@ type Query = {
 
 type CardStore = {
   side: "front" | "back";
+  cardType: "mining" | "cloze";
   page: "main" | "settings" | "kanji" | "nested";
   ready: boolean;
   expressionReady: boolean;
@@ -55,9 +56,11 @@ export function CardStoreContextProvider(props: {
   nested?: boolean;
   isMergePreview?: boolean;
   side: "front" | "back";
+  cardType?: "mining" | "cloze";
 }) {
   const [$card, $setCard] = createStore<CardStore>({
     side: props.side,
+    cardType: props.cardType ?? "mining",
     page: "main",
     ready: false,
     expressionReady: false,

@@ -3,6 +3,7 @@ import { isServer } from "solid-js/web";
 import { useCardContext } from "#/components/shared/CardContext";
 import type { DatasetProp } from "#/util/config";
 import { useLoadPlugin } from "#/util/hooks";
+import { ClozeFront } from "./ClozeFront";
 import { FieldGroupPaginationSection } from "./FieldGroupPaginationSection";
 import { PictureSection } from "./PictureSection";
 import { useAnkiFieldContext } from "./shared/AnkiFieldsContext";
@@ -19,6 +20,14 @@ const Lazy = {
 };
 
 export function Front() {
+  const [$card] = useCardContext();
+  if ($card.cardType === "cloze") {
+    return <ClozeFront />;
+  }
+  return <MiningFront />;
+}
+
+function MiningFront() {
   const [$card, $setCard] = useCardContext();
   const { ankiFields } = useAnkiFieldContext<"front">();
   const [clicked, setClicked] = createSignal(false);
