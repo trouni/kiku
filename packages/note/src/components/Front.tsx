@@ -2,6 +2,11 @@ import { createEffect, createSignal, lazy, onMount } from "solid-js";
 import { isServer } from "solid-js/web";
 import { useCardContext } from "#/components/shared/CardContext";
 import type { DatasetProp } from "#/util/config";
+import {
+  MIN_FONT_SIZE_PX,
+  fetchCardInterval,
+  getScaledFontSizePx,
+} from "#/util/font-scaling";
 import { useLoadPlugin } from "#/util/hooks";
 import { ClozeFront } from "./ClozeFront";
 import { FieldGroupPaginationSection } from "./FieldGroupPaginationSection";
@@ -9,6 +14,7 @@ import { PictureSection } from "./PictureSection";
 import { useAnkiFieldContext } from "./shared/AnkiFieldsContext";
 import { useConfigContext } from "./shared/ConfigContext";
 import { useFieldGroupContext } from "./shared/FieldGroupContext";
+import { useGeneralContext } from "./shared/GeneralContext";
 
 // biome-ignore format: this looks nicer
 const Lazy = {
@@ -33,8 +39,12 @@ function MiningFront() {
   const [clicked, setClicked] = createSignal(false);
   const [hideExpression, setHideExpression] = createSignal(false);
   const [showSentence, setShowSentence] = createSignal(false);
+  const [scaledFontSize, setScaledFontSize] = createSignal<number | undefined>(
+    MIN_FONT_SIZE_PX,
+  );
   const { $group } = useFieldGroupContext();
   const [$config] = useConfigContext();
+  const [$general] = useGeneralContext();
   const loadPlugin = useLoadPlugin();
 
   onMount(() => {
@@ -51,6 +61,15 @@ function MiningFront() {
         setHideExpression(true);
       }, $config.modHiddenDuration);
     }
+
+    fetchCardInterval(
+      $general.ankiDroidAPI,
+      $config.ankiConnectAddress,
+    ).then((interval) => {
+      setScaledFontSize(
+        getScaledFontSizePx($config.fontSizeBaseExpression, interval),
+      );
+    });
   });
 
   createEffect(() => {
@@ -125,6 +144,14 @@ function MiningFront() {
                 "transition-opacity duration-[1000ms] opacity-0":
                   hideExpression(),
               }}
+              style={
+                scaledFontSize()
+                  ? {
+                      "font-size": `${scaledFontSize()}px`,
+                      "line-height": "1.2",
+                    }
+                  : undefined
+              }
               innerHTML={
                 isServer
                   ? undefined
@@ -143,16 +170,27 @@ function MiningFront() {
         </div>
         {$card.ready && !hidden() && <FieldGroupPaginationSection />}
       </div>
-      {$card.ready && isRegularWordCard() && !showSentence() && (
-        <div class="flex justify-center animate-fade-in">
-          <button
-            class="btn btn-ghost btn-sm text-base-content-soft hover:text-base-content"
-            on:click={() => setShowSentence(true)}
-          >
-            Show Sentence
-          </button>
-        </div>
-      )}
+      {$card.ready &&
+        (scaledFontSize() || (isRegularWordCard() && !showSentence())) && (
+          <div class="flex justify-center gap-2 animate-fade-in">
+            {scaledFontSize() && (
+              <button
+                class="btn btn-ghost btn-sm text-base-content-soft hover:text-base-content"
+                on:click={() => setScaledFontSize(undefined)}
+              >
+                Enlarge
+              </button>
+            )}
+            {isRegularWordCard() && !showSentence() && (
+              <button
+                class="btn btn-ghost btn-sm text-base-content-soft hover:text-base-content"
+                on:click={() => setShowSentence(true)}
+              >
+                Show Sentence
+              </button>
+            )}
+          </div>
+        )}
       <div
         class="flex flex-col gap-4 items-center text-center justify-center"
         classList={{
