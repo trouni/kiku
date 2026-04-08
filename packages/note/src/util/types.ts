@@ -25,6 +25,7 @@ export type AnkiFields = {
   Frequency: string;
   FreqSort: string;
   MiscInfo: string;
+  Notes: string;
   Tags: string;
   CardID: string;
 
@@ -143,6 +144,7 @@ export const ankiFieldsSkeleton: AnkiFields = {
   "Frequency": "",
   "FreqSort": "",
   "MiscInfo": "",
+  "Notes": "",
   "Tags": "",
   "CardID": "",
   "furigana:ExpressionFurigana": "",
