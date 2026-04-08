@@ -48,11 +48,14 @@ export async function fetchCardInterval(
   // Try AnkiConnect — use cardId from template if available (works on desktop and mobile)
   if (ankiConnectAddress) {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
       const invoke = async (action: string, params: Record<string, unknown> = {}) => {
         const res = await fetch(ankiConnectAddress, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ action, version: 6, params }),
+          signal: controller.signal,
         });
         return await res.json();
       };
@@ -63,9 +66,11 @@ export async function fetchCardInterval(
 
       if (resolvedCardId) {
         const info = await invoke("cardsInfo", { cards: [resolvedCardId] });
+        clearTimeout(timeoutId);
         const interval = info?.result?.[0]?.interval;
         if (interval != null) return Number(interval);
       }
+      clearTimeout(timeoutId);
     } catch {}
   }
 

@@ -3,7 +3,6 @@ import { isServer } from "solid-js/web";
 import { useCardContext } from "#/components/shared/CardContext";
 import type { DatasetProp } from "#/util/config";
 import {
-  MIN_FONT_SIZE_PX,
   fetchCardInterval,
   getScaledFontSizePx,
 } from "#/util/font-scaling";
@@ -39,9 +38,9 @@ function MiningFront() {
   const [clicked, setClicked] = createSignal(false);
   const [hideExpression, setHideExpression] = createSignal(false);
   const [showSentence, setShowSentence] = createSignal(false);
-  const [scaledFontSize, setScaledFontSize] = createSignal<number | undefined>(
-    MIN_FONT_SIZE_PX,
-  );
+  const [scaledFontSize, setScaledFontSize] = createSignal<
+    number | undefined
+  >();
   const { $group } = useFieldGroupContext();
   const [$config] = useConfigContext();
   const [$general] = useGeneralContext();
