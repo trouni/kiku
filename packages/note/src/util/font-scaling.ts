@@ -35,6 +35,7 @@ export function getScaledFontSizePx(
 export async function fetchCardInterval(
   ankiDroidAPI: AnkiDroidAPI | undefined,
   ankiConnectAddress: string,
+  cardId?: string,
 ): Promise<number> {
   // Try AnkiDroid JS API first
   if (ankiDroidAPI) {
@@ -44,7 +45,7 @@ export async function fetchCardInterval(
     } catch {}
   }
 
-  // Try AnkiConnect (desktop)
+  // Try AnkiConnect — use cardId from template if available (works on desktop and mobile)
   if (ankiConnectAddress) {
     try {
       const invoke = async (action: string, params: Record<string, unknown> = {}) => {
@@ -56,10 +57,12 @@ export async function fetchCardInterval(
         return await res.json();
       };
 
-      const gui = await invoke("guiCurrentCard");
-      const cardId = gui?.result?.cardId;
-      if (cardId) {
-        const info = await invoke("cardsInfo", { cards: [cardId] });
+      const resolvedCardId = cardId
+        ? Number(cardId)
+        : (await invoke("guiCurrentCard"))?.result?.cardId;
+
+      if (resolvedCardId) {
+        const info = await invoke("cardsInfo", { cards: [resolvedCardId] });
         const interval = info?.result?.[0]?.interval;
         if (interval != null) return Number(interval);
       }

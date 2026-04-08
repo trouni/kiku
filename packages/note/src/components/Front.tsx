@@ -65,6 +65,7 @@ function MiningFront() {
     fetchCardInterval(
       $general.ankiDroidAPI,
       $config.ankiConnectAddress,
+      ankiFields.CardID,
     ).then((interval) => {
       setScaledFontSize(
         getScaledFontSizePx($config.fontSizeBaseExpression, interval),
