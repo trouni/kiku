@@ -2,6 +2,8 @@
 outline: deep
 ---
 
+# Updating Kiku
+
 ::: tip TLDR
 
 1. **Download** the latest `.apkg` from [Releases](https://github.com/youyoumu/kiku/releases).
@@ -11,23 +13,36 @@ outline: deep
 
 :::
 
-# Updating Kiku
+::: info REQUIREMENT
+Anki **25.09** or later is required. Please ensure your Anki version is up to date before proceeding.
+:::
+
+## 1. Download
 
 Download the latest `Kiku_v*.apkg` from the [Release page](https://github.com/youyoumu/kiku/releases).
 
-Before importing the `.apkg`, you need to delete all existing [Kiku files](./how-things-work.md#kiku-files).  
-This is required because Anki will not overwrite files that already exist.
+## 2. Clean Existing Files
 
-You may keep `_kiku_config.json`, `_kiku_plugin.js`, and `_kiku_plugin.css`.
+Anki will not overwrite files that already exist. To ensure a successful update, you must delete your existing [Kiku files](./how-things-work.md#kiku-files) before importing the new version.
 
-After that, import the `.apkg` into Anki as usual.
+::: tip Fast Cleanup
+You can quickly delete all Kiku files while preserving your settings via the Kiku Note Manager:
+Go to **Tools** > **Kiku Note Manager** > **Delete Kiku files**.
 
-::: info
-Make sure to open the settings page and click **Save** after updating Kiku.
-This ensures that the settings in the Front/Back/Styling templates are synced with your configuration.
+This will automatically keep your:
+
+- `_kiku_config.json`
+- `_kiku_plugin.js`
+- `_kiku_plugin.css`
+
 :::
 
-::: tip
-You can delete all Kiku files except `_kiku_config.json`, `_kiku_plugin.js`, and `_kiku_plugin.css` by using Kiku Note Manager.
-Go to `Tools` > `Kiku Note Manager` > `Delete Kiku files`
+## 3. Import
+
+Import the `.apkg` into Anki. When prompted, ensure your settings match the options shown below:
+
+![Import Options](/media/import-options.png)
+
+::: info Final Step
+After the import is complete, open the **Settings** page and click **Save**. This synchronizes your Front/Back/Styling templates with your current configuration.
 :::

@@ -4,5 +4,7 @@
   "reportUnusedCallResult": "none",
   "reportUnknownMemberType": "none",
   "reportUnknownArgumentType": "none",
-  "reportOperatorIssue": "none"
+  "reportOperatorIssue": "none",
+  "reportExplicitAny": "none",
+  "reportUnusedImport": "information"
 }

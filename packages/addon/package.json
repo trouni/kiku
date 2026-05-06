@@ -3,7 +3,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "package": "node ./scripts/package.ts"
+    "package": "node ./scripts/package.ts",
+    "typecheck": "./.venv/bin/basedpyright",
+    "lint": "./.venv/bin/ruff check"
   },
   "devDependencies": {
     "@types/archiver": "^7.0.0",

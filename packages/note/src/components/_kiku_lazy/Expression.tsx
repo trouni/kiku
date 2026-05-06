@@ -8,6 +8,7 @@ import { useAnkiFieldContext } from "../shared/AnkiFieldsContext";
 import { useBreakpointContext } from "../shared/BreakpointContext";
 import { useCardContext } from "../shared/CardContext";
 import { useGeneralContext } from "../shared/GeneralContext";
+import { XIcon } from "./Icons";
 import { KanjiContextProvider, useKanjiContext } from "./KanjiContext";
 import { KanjiInfo, KanjiInfoExtra } from "./KanjiInfo";
 
@@ -28,12 +29,12 @@ export default function Expression() {
     const key = `${props.char}-${props.i}-${props.j}`;
     const show = () => activeKey() === key;
 
-    const handleMouseEnter = () => {
+    const handleActive = () => {
       clearTimeout(timeout);
       setActiveKey(key);
     };
 
-    const handleMouseLeave = () => {
+    const handleInactive = () => {
       timeout = setTimeout(() => {
         setActiveKey(null);
       }, 50);
@@ -42,17 +43,21 @@ export default function Expression() {
     return (
       <span
         ref={setAnchorRef}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onFocus={handleMouseEnter}
-        onBlur={handleMouseLeave}
+        tabindex={0}
+        class="tappable"
+        on:mouseenter={handleActive}
+        on:mouseleave={handleInactive}
+        on:focus={handleActive}
+        on:blur={handleInactive}
+        on:touchstart={handleActive}
+        on:touchend={(e) => e.stopPropagation()}
       >
         <KanjiContextProvider kanji={extractKanji(props.char)[0] ?? ""}>
           <KanjiTooltip
             show={show()}
             anchor={anchorRef()}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
+            onActive={handleActive}
+            onInactive={handleInactive}
           />
         </KanjiContextProvider>
         {props.char}
@@ -138,8 +143,9 @@ export default function Expression() {
               {chars.map((char, j) => (
                 <CharSpan char={char} i={i} j={j} />
               ))}
-
-              {item.reading.trim() !== "" && <rt>{item.reading}</rt>}
+              <Show when={item.reading.trim() !== "" || item.reading === " "}>
+                <rt>{item.reading}</rt>
+              </Show>
             </ruby>
           );
         }
@@ -159,8 +165,8 @@ export default function Expression() {
 function KanjiTooltip(props: {
   show: boolean;
   anchor: HTMLElement | undefined;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
+  onActive: () => void;
+  onInactive: () => void;
 }) {
   const [$general] = useGeneralContext();
   const [$kanji] = useKanjiContext();
@@ -217,10 +223,16 @@ function KanjiTooltip(props: {
   return (
     <Portal mount={$general.layoutRef}>
       <div
-        class="absolute z-10 overflow-hidden rounded-lg horizontal-tb text-start tooltip"
         ref={setTooltipRef}
-        onMouseEnter={props.onMouseEnter}
-        onMouseLeave={props.onMouseLeave}
+        class="absolute z-10 overflow-hidden rounded-lg horizontal-tb text-start tooltip tappable"
+        tabindex={0}
+        data-kanji-tooltip
+        on:mouseenter={props.onActive}
+        on:mouseleave={props.onInactive}
+        on:focus={props.onActive}
+        on:blur={props.onInactive}
+        on:touchstart={props.onActive}
+        on:touchend={(e) => e.stopPropagation()}
         style={{
           display: props.show ? "block" : "none",
           left: `${position.x}px`,
@@ -238,6 +250,14 @@ function KanjiTooltip(props: {
             ...(position.staticSide ? { [position.staticSide]: "-4px" } : {}),
           }}
         ></div>
+        <button
+          data-anki-mobile-only="block"
+          class="absolute z-20 top-2 right-2"
+          on:click={props.onInactive}
+          on:touchend={(e) => e.stopPropagation()}
+        >
+          <XIcon class="size-5 cursor-pointer text-base-content-soft" />
+        </button>
         <div
           class="relative text-base bg-base-200/97 z-10 p-2 sm:p-4 border border-base-300 rounded-lg font-primary w-xs sm:w-md lg:w-lg shadow-lg max-h-[75vh] overflow-auto"
           style={{ color: "initial" }}

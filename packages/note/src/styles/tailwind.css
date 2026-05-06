@@ -270,3 +270,8 @@
   font-display: swap;
   src: url("_kiku_font_ibm-plex-sans-jp.woff2") format("woff2");
 }
+
+[data-kiku-cloak] {
+  visibility: visible !important;
+  opacity: 1 !important;
+}

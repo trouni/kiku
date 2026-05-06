@@ -12,8 +12,8 @@ Kiku is designed to be compatible with [Lapis](https://github.com/donkuri/lapis)
 This documentation assumes you already know about Anki, Yomitan, and mining stuff.
 :::
 
-::: warning
-Anki 25.09 or later is required.
+::: warning REQUIREMENT
+Anki **25.09** or later is required. Please ensure your Anki version is up to date before proceeding.
 :::
 
 ## Installing Note Type
@@ -24,30 +24,30 @@ Download the latest release `Kiku_v*.apkg` from [Release](https://github.com/you
 
 Open your Yomitan settings, go to `Anki` > `Configure Anki flashcard`, select `Kiku` as the Model, and configure the following fields:
 
-| Field                 | Value                                                                                                                                                      |
-| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Expression            | `{expression}`                                                                                                                                             |
-| ExpressionFurigana    | `{furigana-plain}`                                                                                                                                         |
-| ExpressionReading     | `{reading}`                                                                                                                                                |
-| ExpressionAudio       | `{audio}`                                                                                                                                                  |
-| SelectionText         | `{popup-selection-text}`                                                                                                                                   |
-| MainDefinition        | Something like `{single-glossary-jmdict/jitendex}`. Find this by clicking the down arrow next to this field, and find a dictionary in a similar format.     |
-| DefinitionPicture     | Here you can include any image you'd like to use to help _illustrate_ the definition or the vocabulary term.                                               |
-| Sentence              | `{cloze-prefix}<b>{cloze-body}</b>{cloze-suffix}`                                                                                                          |
-| SentenceFurigana      |                                                                                                                                                            |
-| SentenceAudio         |                                                                                                                                                            |
-| Picture               |                                                                                                                                                            |
-| Glossary              | `{glossary}`                                                                                                                                               |
-| Hint                  |                                                                                                                                                            |
-| IsWordAndSentenceCard |                                                                                                                                                            |
-| IsClickCard           |                                                                                                                                                            |
-| IsSentenceCard        |                                                                                                                                                            |
-| IsAudioCard           |                                                                                                                                                            |
-| PitchPosition         | `{pitch-accent-positions}`                                                                                                                                 |
-| PitchCategories       | `{pitch-accent-categories}`                                                                                                                                |
-| Frequency             | `{frequencies}`                                                                                                                                            |
-| FreqSort              | `{frequency-harmonic-rank}`                                                                                                                                |
-| MiscInfo              | `{document-title}` If you want your cards to include the title of the tab they were mined from, such as for light novels (LNs), please use this feature.   |
+| Field                 | Value                                                                                                                                                    |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Expression            | `{expression}`                                                                                                                                           |
+| ExpressionFurigana    | `{furigana-plain}`                                                                                                                                       |
+| ExpressionReading     | `{reading}`                                                                                                                                              |
+| ExpressionAudio       | `{audio}`                                                                                                                                                |
+| SelectionText         | `{popup-selection-text}`                                                                                                                                 |
+| MainDefinition        | Something like `{single-glossary-jmdict/jitendex}`. Find this by clicking the down arrow next to this field, and find a dictionary in a similar format.  |
+| DefinitionPicture     | Here you can include any image you'd like to use to help _illustrate_ the definition or the vocabulary term.                                             |
+| Sentence              | `{cloze-prefix}<b>{cloze-body}</b>{cloze-suffix}`                                                                                                        |
+| SentenceFurigana      |                                                                                                                                                          |
+| SentenceAudio         |                                                                                                                                                          |
+| Picture               |                                                                                                                                                          |
+| Glossary              | `{glossary}`                                                                                                                                             |
+| Hint                  |                                                                                                                                                          |
+| IsWordAndSentenceCard |                                                                                                                                                          |
+| IsClickCard           |                                                                                                                                                          |
+| IsSentenceCard        |                                                                                                                                                          |
+| IsAudioCard           |                                                                                                                                                          |
+| PitchPosition         | `{pitch-accent-positions}`                                                                                                                               |
+| PitchCategories       | `{pitch-accent-categories}`                                                                                                                              |
+| Frequency             | `{frequencies}`                                                                                                                                          |
+| FreqSort              | `{frequency-harmonic-rank}`                                                                                                                              |
+| MiscInfo              | `{document-title}` If you want your cards to include the title of the tab they were mined from, such as for light novels (LNs), please use this feature. |
 
 Credit to [Lapis](https://github.com/donkuri/lapis) for the table
 

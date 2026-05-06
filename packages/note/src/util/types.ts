@@ -243,6 +243,17 @@ export type AnkiDroidAPI = {
 };
 
 declare global {
+  interface PromiseWithResolvers<T> {
+    promise: Promise<T>;
+    resolve: (value: T | PromiseLike<T>) => void;
+    //biome-ignore lint: polyfill
+    reject: (reason?: any) => void;
+  }
+
+  interface PromiseConstructor {
+    withResolvers<T>(): PromiseWithResolvers<T>;
+  }
+
   var pycmd: () => void;
   var AnkiDroidJS: {
     new (contract: { version: string; developer?: string }): AnkiDroidAPI;

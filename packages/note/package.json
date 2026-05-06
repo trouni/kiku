@@ -1,7 +1,7 @@
 {
   "name": "@repo/note",
   "private": true,
-  "version": "1.9.3",
+  "version": "1.10.0",
   "type": "module",
   "exports": {
     ".": {
@@ -31,12 +31,14 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.1",
+    "@types/jsdom": "^28.0.1",
     "@types/node": "^25.5.0",
     "@types/serve-static": "^2.2.0",
     "chalk": "^5.6.2",
     "cheerio": "^1.2.0",
     "daisyui": "^5.5.19",
     "extract-zip": "^2.0.1",
+    "jsdom": "^29.1.1",
     "serve-static": "^2.2.1",
     "tailwindcss": "^4.2.1",
     "tar": "^7.5.11",

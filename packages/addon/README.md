@@ -15,3 +15,7 @@ Initial release
 ### v1.1.1 (2025-12-23)
 
 - Whitelist `_kiku_plugin.css` from deletion
+
+### v1.1.2 (2026-4-28)
+
+- Delete `_kiku_notes_manifest.json` before regenerating it

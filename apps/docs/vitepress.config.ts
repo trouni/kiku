@@ -1,6 +1,15 @@
 import { cp } from "node:fs/promises";
 import { join } from "node:path";
-import { defineConfig } from "vitepress";
+import { defineConfig, type HeadConfig } from "vitepress";
+
+const umamiScript: HeadConfig = [
+  "script",
+  {
+    defer: "true",
+    src: process.env.VITE_UMAMI_URL ?? "",
+    "data-website-id": process.env.VITE_UMAMI_WEBSITE_ID ?? "",
+  },
+];
 
 const dirname = import.meta.dirname;
 
@@ -19,7 +28,7 @@ export default defineConfig({
   srcDir: "mds",
   title: "Kiku",
   description: "Modern Anki notes, built like web apps.",
-  head: [["link", { rel: "icon", href: "/favicon.ico" }]],
+  head: [["link", { rel: "icon", href: "/favicon.ico" }], umamiScript],
   vite: {
     publicDir: "../public",
     plugins: [copyKikuCss()],

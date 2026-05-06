@@ -153,9 +153,27 @@ body {
   position: relative;
 }
 
+[data-kiku-cloak] {
+  visibility: hidden;
+  opacity: 0;
+}
+
 /* AnkiDroid */
 .android body > div#content {
   margin: 0;
+}
+
+/* AnkiMobile */
+.iphone,
+.ipad {
+  --anki-mobile-display-none: none;
+  --anki-mobile-display-block: block;
+}
+[data-side="front"] [data-anki-mobile-hide="front"] {
+  display: var(--anki-mobile-display-none);
+}
+[data-anki-mobile-only="block"] {
+  display: var(--anki-mobile-display-block, none);
 }
 
 /* apply initial background-color before the card render */

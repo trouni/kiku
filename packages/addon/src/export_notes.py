@@ -126,6 +126,8 @@ def export_notes_background(col: Collection) -> tuple[str, bool]:
     }
 
     manifest_path = os.path.join(media_dir, "_kiku_notes_manifest.json")
+    if os.path.exists(manifest_path):
+        os.remove(manifest_path)
     with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, ensure_ascii=False, indent=2)
 

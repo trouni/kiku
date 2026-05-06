@@ -116,7 +116,7 @@ function Page() {
               Updated at{" "}
               {new Date(
                 $general.notesManifest?.generatedAt ?? 0,
-              ).toLocaleDateString()}
+              ).toLocaleString()}
             </div>
           </Show>
         </div>

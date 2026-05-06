@@ -10,8 +10,9 @@ import { useCtxContext } from "#/components/shared/CtxContext";
 import { useGeneralContext } from "#/components/shared/GeneralContext";
 import type { KikuPlugin } from "#/plugins/plugin-types";
 import { createNex } from "#/worker/client";
-import { constants, extractKanji, parseHtml, unique } from "./general";
+import { constants, extractKanji, parseHtml } from "./general";
 import { hatsuon } from "./hatsuon";
+import { extractPitchNumbers } from "./pitch";
 import type { DaisyUITheme } from "./theme";
 import { type PitchType, pitchTypes } from "./types";
 
@@ -74,21 +75,10 @@ export function useNavigationTransition() {
 export function usePitch() {
   const [$card, $setCard] = useCardContext();
   const { ankiFields } = useAnkiFieldContext<"back">();
-  const [$general] = useGeneralContext();
 
-  const pitchNumbers = createMemo(() => {
-    const raw = ankiFields.PitchPosition;
-    if (!raw) return [];
-    const pitchPositionDoc = parseHtml(raw);
-    const numbers = Array.from(pitchPositionDoc.querySelectorAll("span"))
-      .map((el) => Number(el.innerText))
-      .filter((value) => !Number.isNaN(value));
-    const uniqueNumbers = unique(numbers);
-    if (uniqueNumbers.length) {
-      $general.logger.info("Detected pitch number:", uniqueNumbers);
-    }
-    return uniqueNumbers;
-  });
+  const pitchNumbers = createMemo(() =>
+    extractPitchNumbers(ankiFields.PitchPosition),
+  );
 
   const reading = createMemo(() => {
     if ($card.nested) return ankiFields.ExpressionReading;

@@ -1,4 +1,5 @@
 /* @refresh reload */
+import "./util/polyfill.ts";
 import { createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 import { hydrate, render } from "solid-js/web";
@@ -247,6 +248,20 @@ export async function initAnki({
         )
       : ankiFieldsSkeleton;
 
+    //NOTE: AnkiMobile kanji tooltip hack https://github.com/youyoumu/kiku/issues/12#issuecomment-4216160200
+    const kanjiToolTipSyle = document.createElement("style");
+    kanjiToolTipSyle.innerHTML = `[data-kanji-tooltip] { display: none !important; }`;
+    shadow.appendChild(kanjiToolTipSyle);
+    const resetKanjiTooltip = () => {
+      const kanjiTooltips = root?.querySelectorAll<HTMLSpanElement>(
+        "[data-kanji-tooltip]",
+      );
+      Array.from(kanjiTooltips ?? []).forEach((el) => {
+        el.style.display = "none";
+      });
+      kanjiToolTipSyle.remove();
+    };
+
     const res = await init({
       root,
       side,
@@ -262,6 +277,7 @@ export async function initAnki({
       isAnkiWeb,
       rootDataset,
     });
+    setTimeout(resetKanjiTooltip, 50);
 
     Object.assign(globalThis.KIKU, res);
     if (import.meta.env.DEV) root.dataset.side = side;

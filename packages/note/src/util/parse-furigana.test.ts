@@ -149,4 +149,13 @@ describe("parseFurigana", () => {
       { type: "text", text: "に会う" },
     ]);
   });
+
+  it("should handle 擽[くすぐ]る[ ] with empty ruby after kana", () => {
+    const input = "擽[くすぐ]る[ ]";
+    const result = parseFurigana(input);
+    expect(result).toEqual([
+      { type: "ruby", text: "擽", reading: "くすぐ" },
+      { type: "ruby", text: "る", reading: " " },
+    ]);
+  });
 });

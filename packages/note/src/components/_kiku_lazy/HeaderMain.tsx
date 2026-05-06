@@ -37,7 +37,7 @@ export default function HeaderMain(props: { onExitNested?: () => void }) {
             <MergeContextModal />
           </Match>
           <Match when={!$card.nested}>
-            <div class="relative">
+            <div class="relative" data-anki-mobile-hide="front">
               <div
                 class="tooltip tooltip-bottom flex items-center"
                 data-tip={
@@ -48,6 +48,7 @@ export default function HeaderMain(props: { onExitNested?: () => void }) {
               >
                 <button
                   on:click={() => {
+                    if ($card.side === "front") return;
                     navigate("settings", "forward", () =>
                       navigate("main", "back"),
                     );
