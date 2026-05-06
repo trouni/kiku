@@ -29,6 +29,24 @@ function AudioTag(props: { text: string }) {
   );
 }
 
+// Trigger Anki playback for a soundLink anchor. On AnkiMobile (iOS WKWebView),
+// inline `onclick="pycmd(...)"` handlers attached via innerHTML are not always
+// executed when the element is clicked from inside a Shadow DOM. Parse the
+// command out of the attribute and invoke `pycmd` directly so playback works
+// regardless of where the cloned anchor lives.
+function clickAnkiSoundLink(link: HTMLAnchorElement | null | undefined) {
+  if (!link) return false;
+  const onclickStr = link.getAttribute("onclick") ?? "";
+  const match = onclickStr.match(/pycmd\(\s*['"]([^'"]+)['"]\s*\)/);
+  const pycmdFn = (globalThis as { pycmd?: (cmd: string) => void }).pycmd;
+  if (match && typeof pycmdFn === "function") {
+    pycmdFn(match[1]);
+    return true;
+  }
+  link.click();
+  return true;
+}
+
 export function NotePlayIcon(props: {
   "on:click"?: () => void;
   color: "primary" | "secondary";
@@ -117,11 +135,11 @@ export default function AudioButtons(props: { position: 1 | 2 }) {
         // Mobile native Anki (AnkiDroid/AnkiMobile) doesn't reliably autoplay
         // back-side audio, so trigger the soundLink the same way the manual
         // play button does. Gated by position to avoid the second instance
-        // toggling playback off via a duplicate click.
+        // double-firing.
         const expressionLink = $card.expressionAudioRef?.querySelector("a");
         if (expressionLink) {
           autoPlay = false;
-          expressionLink.click();
+          clickAnkiSoundLink(expressionLink);
         }
       }
     }
@@ -129,7 +147,7 @@ export default function AudioButtons(props: { position: 1 | 2 }) {
 
   onMount(() => {
     if ($card.isNsfw && $config.muteNsfw) {
-      $card.expressionAudioRef?.querySelector("a")?.click();
+      clickAnkiSoundLink($card.expressionAudioRef?.querySelector("a"));
     }
   });
 
@@ -140,7 +158,7 @@ export default function AudioButtons(props: { position: 1 | 2 }) {
           <NotePlayIcon
             color="primary"
             on:click={() => {
-              $card.expressionAudioRef?.querySelector("a")?.click();
+              clickAnkiSoundLink($card.expressionAudioRef?.querySelector("a"));
               $card.expressionAudioRef?.querySelector("audio")?.play();
             }}
           ></NotePlayIcon>
@@ -150,7 +168,8 @@ export default function AudioButtons(props: { position: 1 | 2 }) {
             <NotePlayIcon
               color="secondary"
               on:click={() => {
-                el.click();
+                if (el instanceof HTMLAnchorElement) clickAnkiSoundLink(el);
+                else el.click();
                 if (el instanceof HTMLAudioElement) el.play();
               }}
             ></NotePlayIcon>
