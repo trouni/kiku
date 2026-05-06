@@ -95,17 +95,34 @@ export default function AudioButtons(props: { position: 1 | 2 }) {
       el.volume = useWebVolume ? $config.volume / 100 : 1;
     });
 
-    if ($card.nested && autoPlay) {
-      autoPlay = false;
-      const audio = $card.expressionAudioRef?.querySelector("audio");
-      if (audio) {
-        audio.play();
-        audio.onpause = () => {
-          const audio = $card.sentenceAudioRef?.querySelectorAll("audio")[0];
-          if (audio) {
-            audio.play();
-          }
-        };
+    if (autoPlay) {
+      if ($card.nested) {
+        const audio = $card.expressionAudioRef?.querySelector("audio");
+        if (audio) {
+          autoPlay = false;
+          audio.play();
+          audio.onpause = () => {
+            const audio = $card.sentenceAudioRef?.querySelectorAll("audio")[0];
+            if (audio) {
+              audio.play();
+            }
+          };
+        }
+      } else if (
+        props.position === 1 &&
+        $card.side === "back" &&
+        !bp.isAtLeast("sm") &&
+        !$general.isAnkiWeb
+      ) {
+        // Mobile native Anki (AnkiDroid/AnkiMobile) doesn't reliably autoplay
+        // back-side audio, so trigger the soundLink the same way the manual
+        // play button does. Gated by position to avoid the second instance
+        // toggling playback off via a duplicate click.
+        const expressionLink = $card.expressionAudioRef?.querySelector("a");
+        if (expressionLink) {
+          autoPlay = false;
+          expressionLink.click();
+        }
       }
     }
   });
