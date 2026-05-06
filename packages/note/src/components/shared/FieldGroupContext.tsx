@@ -157,7 +157,13 @@ export function FieldGroupContextProvider(props: { children: JSX.Element }) {
     }
 
     if ($group.ids.length > 0) {
-      const sorted = $group.ids.map((id) => Number(id)).sort((a, b) => b - a);
+      const sorted = $group.ids
+        .map((id) => Number(id))
+        .sort((a, b) => {
+          if (a === 0) return -1;
+          if (b === 0) return 1;
+          return b - a;
+        });
       const id = sorted[$group.index];
       let sentenceField: string | undefined;
       let sentenceAudioField: string | undefined;

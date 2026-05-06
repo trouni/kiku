@@ -109,10 +109,10 @@ SentenceAudio:
 
 ## More Info
 
-- The `data-group-id` value should be a positive integer. Kiku will sort them in descending order.
+- The `data-group-id` value should be a positive integer. Kiku will sort them in descending order, with the default (ungrouped) sentence shown first.
 - If `data-group-id` is a [Unix Timestamp](https://www.unixtimestamp.com/) between year 2000 and 2100, it will be displayed as a date.
 - Each unique `data-group-id` will create a new page.
-- Anything without a `data-group-id` will be shown on the same page.
+- Anything without a `data-group-id` will be shown on the first page.
 - **SentenceFurigana** and **MiscInfo** fields will also be grouped.
 
 ## Merge Context Button
