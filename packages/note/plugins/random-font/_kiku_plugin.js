@@ -10,11 +10,11 @@ export const plugin = {
     const [$general] = ctx.useGeneralContext();
     const root = $general.root;
     const fontsPool = [
-      "Hina Mincho",
-      "Klee One",
-      "IBM Plex Sans JP",
+      "'Hina Mincho'",
+      "'Klee One'",
+      "'IBM Plex Sans JP'",
       // you can add more fonts here
-      "'Hiragino Mincho ProN', 'Noto Serif CJK JP', 'Noto Serif JP', 'Yu Mincho', HanaMinA, HanaMinB, serif",
+      "'Hiragino Mincho ProN', 'Noto Serif CJK JP', 'Noto Serif JP', 'Yu Mincho', 'HanaMinA', 'HanaMinB', 'serif'",
     ];
 
     const randomFont = fontsPool[Math.floor(Math.random() * fontsPool.length)];
