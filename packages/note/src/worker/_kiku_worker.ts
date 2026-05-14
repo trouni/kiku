@@ -10,146 +10,44 @@ import type {
   KikuNotesManifest,
 } from "#/util/types";
 
-let ankiConnectAddress = "";
+import { AnkiConnect } from "./anki-connect.worker";
+import type { MainThreadApi } from "./client";
+import { type NexRemote, NexWorker } from "./nex";
 
-const logger = {
-  trace: (...args: unknown[]) => postMessage({ log: { level: "trace", args } }),
-  debug: (...args: unknown[]) => postMessage({ log: { level: "debug", args } }),
-  info: (...args: unknown[]) => postMessage({ log: { level: "info", args } }),
-  warn: (...args: unknown[]) => postMessage({ log: { level: "warn", args } }),
-  error: (...args: unknown[]) => postMessage({ log: { level: "error", args } }),
+let main: NexRemote<MainThreadApi>;
+
+const log = {
+  trace: (...args: unknown[]) => main.log("trace", args),
+  debug: (...args: unknown[]) => main.log("debug", args),
+  info: (...args: unknown[]) => main.log("info", args),
+  warn: (...args: unknown[]) => main.log("warn", args),
+  error: (...args: unknown[]) => main.log("error", args),
 };
 
-const AnkiConnect = {
-  invoke: async (action: string, params: Record<string, unknown> = {}) => {
-    const res = await fetch(ankiConnectAddress, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action, version: 6, params }),
-    });
-
-    const result = await res.json();
-    if (result.error) throw new Error(result.error);
-    return result;
-  },
-
-  batchFindNotes: async (queries: string[]) => {
-    const res = (await AnkiConnect.invoke("multi", {
-      actions: queries.map((query) => ({
-        action: "findNotes",
-        params: { query },
-      })),
-    })) as { result: Array<number[]> };
-    return res.result;
-  },
-  batchNotesInfo: async (noteIdsList: number[][]) => {
-    const res = (await AnkiConnect.invoke("multi", {
-      actions: noteIdsList.map((ids) => ({
-        action: "notesInfo",
-        params: { notes: ids },
-      })),
-    })) as { result: Array<AnkiNote[]> };
-    return res.result;
-  },
-
-  queryFieldContains: async ({
-    kanjiList,
-    readingList,
-    expressionList,
-  }: {
-    kanjiList: string[];
-    readingList: string[];
-    expressionList: string[];
-  }) => {
-    const noteFilter = `("note:Kiku" OR "note:Lapis")`;
-
-    const kanjiQuery =
-      kanjiList.length === 0
-        ? null
-        : `${noteFilter} AND (${kanjiList
-            .map((k) => `"Expression:*${k}*"`)
-            .join(" OR ")})`;
-
-    const readingQuery =
-      readingList.length === 0
-        ? null
-        : `${noteFilter} AND (${readingList
-            .map((r) => `"ExpressionReading:${r}"`)
-            .join(" OR ")})`;
-
-    const expressionQuery =
-      expressionList.length === 0
-        ? null
-        : `${noteFilter} AND (${expressionList
-            .map((e) => `"Expression:${e}"`)
-            .join(" OR ")})`;
-
-    const queries = [kanjiQuery, readingQuery, expressionQuery].filter(
-      Boolean,
-    ) as string[];
-    const idsLists = await AnkiConnect.batchFindNotes(queries);
-    const allIds = [...new Set(idsLists.flat())];
-    const [allNotes] = await AnkiConnect.batchNotesInfo([allIds]);
-
-    const kanjiListResult: Record<string, AnkiNote[]> = {};
-    const readingListResult: Record<string, AnkiNote[]> = {};
-    const expressionListResult: Record<string, AnkiNote[]> = {};
-
-    for (const k of kanjiList) {
-      kanjiListResult[k] = allNotes.filter((n) =>
-        n.fields.Expression?.value.includes(k),
-      );
-    }
-
-    for (const r of readingList) {
-      readingListResult[r] = allNotes.filter(
-        (n) => n.fields.ExpressionReading?.value === r,
-      );
-    }
-
-    for (const e of expressionList) {
-      expressionListResult[e] = allNotes.filter(
-        (n) => n.fields.Expression?.value === e,
-      );
-    }
-
-    return {
-      kanjiListResult,
-      readingListResult,
-      expressionListResult,
-    };
-  },
-};
-
-export class Nex {
+export class WorkerThreadApi {
   assetsPath!: string;
-  env!: Constants;
+  constants!: Constants;
   config!: KikuConfig;
   preferAnkiConnect!: boolean;
   cache = new Map();
-
-  constructor(payload: {
-    assetsPath: string;
-    env: Constants;
-    config: KikuConfig;
-    preferAnkiConnect: boolean;
-  }) {
-    this.init(payload);
-  }
+  ankiConnect!: AnkiConnect;
 
   init(payload: {
     assetsPath: string;
-    env: Constants;
+    constants: Constants;
     config: KikuConfig;
     preferAnkiConnect: boolean;
   }) {
-    logger.debug("init Worker", payload);
+    log.debug("init Worker", payload);
 
     this.assetsPath = payload.assetsPath;
-    this.env = payload.env;
+    this.constants = payload.constants;
     this.config = payload.config;
     this.preferAnkiConnect = payload.preferAnkiConnect;
-    ankiConnectAddress = this.config.ankiConnectAddress;
+    this.ankiConnect = new AnkiConnect(
+      main.fetchJson,
+      this.config.ankiConnectAddress,
+    );
   }
 
   chunkCache = new Map<string, AnkiNote[]>();
@@ -176,8 +74,10 @@ export class Nex {
       for (const chunk of manifest.chunks) {
         let notes = this.chunkCache.get(chunk.file);
         if (!notes) {
-          const res = await fetch(`${this.assetsPath}/${chunk.file}`);
-          const text = await Nex.gunzip(res).text();
+          const buf = await main.fetchArrayBuffer(
+            `${this.assetsPath}/${chunk.file}`,
+          );
+          const text = await gunzipArrayBuffer(buf).text();
           notes = JSON.parse(text) as AnkiNote[];
           this.chunkCache.set(chunk.file, notes);
         }
@@ -219,14 +119,14 @@ export class Nex {
 
     if (this.preferAnkiConnect) {
       try {
-        logger.info("Querying with AnkiConnect");
-        return await AnkiConnect.queryFieldContains({
+        log.info("Querying with AnkiConnect");
+        return await this.ankiConnect.queryFieldContains({
           kanjiList,
           readingList,
           expressionList,
         });
       } catch {
-        logger.warn(
+        log.warn(
           "Failed to query with AnkiConnect, falling back to notes cache",
         );
         return await queryWithNotesCache();
@@ -234,13 +134,11 @@ export class Nex {
     }
 
     try {
-      logger.info("Querying with notes cache");
+      log.info("Querying with notes cache");
       return await queryWithNotesCache();
     } catch {
-      logger.warn(
-        "Failed to query with notes cache, falling back to AnkiConnect",
-      );
-      return await AnkiConnect.queryFieldContains({
+      log.warn("Failed to query with notes cache, falling back to AnkiConnect");
+      return await this.ankiConnect.queryFieldContains({
         kanjiList,
         readingList,
         expressionList,
@@ -370,28 +268,26 @@ export class Nex {
       this.lookupKanjiPromise = Promise.withResolvers();
       const manifest = await this.dbMainManifest();
       const file =
-        manifest.files[this.env.tar["kiku_db_kanji_compact.json.gz"]];
-      let res = await fetch(
-        `${this.assetsPath}/${this.env.assets["_kiku_db_main.tar"]}`,
+        manifest.files[this.constants.tar["kiku_db_kanji_compact.json.gz"]];
+      const buf = await main.fetchArrayBuffer(
+        `${this.assetsPath}/${this.constants.assets["_kiku_db_main.tar"]}`,
         {
           headers: { Range: `bytes=${file.start}-${file.end}` },
         },
+        {
+          range: {
+            start: file.start,
+            end: file.end,
+            size: file.size,
+          },
+        },
       );
-      if (res.status === 200) {
-        res = Nex.sliceBytes(await res.arrayBuffer(), file.start, file.end);
-      } else {
-        let buf = await res.arrayBuffer();
-        if (buf.byteLength > file.size) {
-          buf = buf.slice(0, file.size);
-        }
-        res = new Response(buf);
-      }
 
-      const text = await Nex.gunzip(res).text();
+      const text = await gunzipArrayBuffer(buf).text();
       const dbKanjiCompact = JSON.parse(text);
       const dbKanji: Record<string, KanjiInfo> = {};
       for (const kanji of Object.keys(dbKanjiCompact)) {
-        const data = Nex.fromCompact(dbKanjiCompact[kanji]);
+        const data = fromCompact(dbKanjiCompact[kanji]);
         if (data) dbKanji[kanji] = data;
       }
       this.cache.set(key, dbKanji);
@@ -404,15 +300,16 @@ export class Nex {
   async dbMainManifest(): Promise<KikuDbMainManifest> {
     const key = this.dbMainManifest.name;
     if (this.cache.has(key)) return this.cache.get(key);
-    const res = await fetch(
-      `${this.assetsPath}/${this.env.assets["_kiku_db_main_manifest.json"]}`,
-      { cache: "no-store" },
-    );
-    if (!res.ok) {
-      logger.error("Failed to load db main manifest");
-      throw new Error(`Failed to load db main manifest`);
+    let manifest: KikuDbMainManifest;
+    try {
+      manifest = (await main.fetchJson(
+        `${this.assetsPath}/${this.constants.assets["_kiku_db_main_manifest.json"]}`,
+        { cache: "no-store" },
+      )) as KikuDbMainManifest;
+    } catch {
+      log.error("Failed to load db main manifest");
+      throw new Error("Failed to load db main manifest");
     }
-    const manifest = await res.json();
     this.cache.set(key, manifest);
     return manifest;
   }
@@ -420,82 +317,50 @@ export class Nex {
   async notesManifest(): Promise<KikuNotesManifest> {
     const key = this.notesManifest.name;
     if (this.cache.has(key)) return this.cache.get(key);
-    const res = await fetch(
-      `${this.assetsPath}/${this.env.assets["_kiku_notes_manifest.json"]}`,
-      { cache: "no-store" },
-    );
-    if (!res.ok) {
-      logger.error("Failed to load manifest");
-      throw new Error(`Failed to load manifest`);
+    let manifest: KikuNotesManifest;
+    try {
+      manifest = (await main.fetchJson(
+        `${this.assetsPath}/${this.constants.assets["_kiku_notes_manifest.json"]}`,
+        { cache: "no-store" },
+      )) as KikuNotesManifest;
+    } catch {
+      log.error("Failed to load manifest");
+      throw new Error("Failed to load manifest");
     }
-    const manifest = await res.json();
     this.cache.set(key, manifest);
     return manifest;
   }
-
-  static fromCompact(c: KanjiInfoCompact | undefined): KanjiInfo | undefined {
-    if (!c) return undefined;
-    return {
-      composedOf: c[0],
-      usedIn: c[1],
-      wkMeaning: c[2],
-      meanings: c[3],
-      keyword: c[4],
-      readings: c[5],
-      frequency: c[6],
-      kind: c[7],
-      visuallySimilar: c[8],
-      related: c[9],
-    };
-  }
-
-  static gunzip(res: Response) {
-    if (!res.body) {
-      logger.error("No body for", res.url);
-      throw new Error(`No body for ${res.url}`);
-    }
-    const ds = new DecompressionStream("gzip");
-    const decompressed = res.body.pipeThrough(ds);
-    return new Response(decompressed);
-  }
-
-  static sliceBytes(buf: ArrayBuffer, start: number, end: number): Response {
-    const slice = buf.slice(start, end + 1);
-    return new Response(slice);
-  }
 }
 
-function expose(api: Record<string, unknown>) {
-  self.onmessage = async (e) => {
-    const { id, fn, args } = e.data;
-    let result: unknown;
-    try {
-      const maybeFn = api[fn];
-      if (typeof maybeFn === "function") {
-        result = await maybeFn(...args);
-      } else {
-        result = maybeFn;
-      }
-      postMessage({ id, result });
-    } catch (error) {
-      postMessage({ id, error });
-    }
+function gunzipArrayBuffer(buf: ArrayBuffer) {
+  if (buf.byteLength === 0) {
+    throw new Error("No body for empty buffer");
+  }
+  const res = new Response(buf);
+  if (!res.body) {
+    throw new Error("No body for buffer");
+  }
+  const ds = new DecompressionStream("gzip");
+  const decompressed = res.body.pipeThrough(ds);
+  return new Response(decompressed);
+}
+
+function fromCompact(c: KanjiInfoCompact | undefined): KanjiInfo | undefined {
+  if (!c) return undefined;
+  return {
+    composedOf: c[0],
+    usedIn: c[1],
+    wkMeaning: c[2],
+    meanings: c[3],
+    keyword: c[4],
+    readings: c[5],
+    frequency: c[6],
+    kind: c[7],
+    visuallySimilar: c[8],
+    related: c[9],
   };
 }
 
-let nex: Nex;
-type NexKey = keyof typeof Nex.prototype | "init";
-type NexApi$ = Partial<Record<NexKey, unknown>>;
-
-//biome-ignore format: this looks nicer
-const nexApi = {
-  async init(payload: ConstructorParameters<typeof Nex>[0]) { if (nex) { nex.init(payload); } else { nex = new Nex(payload); }},
-  notesManifest: () => nex.notesManifest(),
-  query: (...args: Parameters<typeof nex.query>) => nex.query(...args),
-  queryShared: ( ...args: Parameters<typeof nex.queryShared>) => nex.queryShared(...args),
-  lookupKanji: (...args: Parameters<typeof nex.lookupKanji>) => nex.lookupKanji(...args),
-} satisfies NexApi$;
-
-export type NexApi = typeof nexApi;
-
-expose(nexApi);
+const workerThreadApi = new WorkerThreadApi();
+const nexWorker = new NexWorker<MainThreadApi>();
+main = nexWorker.wrap(workerThreadApi);

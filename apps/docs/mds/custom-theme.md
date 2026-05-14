@@ -26,6 +26,7 @@ You can override the `cupcake` theme with your own theme like this:
   [data-theme="cupcake"] {
     prefersdark: false;
     color-scheme: "light";
+    /* add !important to --color-base-100 */
     --color-base-100: oklch(100% 0 0) !important;
     --color-base-200: oklch(100% 0 0);
     --color-base-300: oklch(100% 0 0);
@@ -56,11 +57,12 @@ You can override the `cupcake` theme with your own theme like this:
     --noise: 0;
   }
 }
-```
 
-::: warning
-Add `!important` to `--color-base-100` to ensure background overrides work ([#34](https://github.com/youyoumu/kiku/issues/34)).
-:::
+/* define --color-base-100 on here too */
+:root {
+  --color-base-100: oklch(100% 0 0) !important;
+}
+```
 
 After saving the file, open the Kiku settings and click **Save**. This will update Kiku’s style template using the modified `_kiku_style.css`.
 

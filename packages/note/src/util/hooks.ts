@@ -170,7 +170,7 @@ export function useKanji() {
         : [];
 
       const opts = {
-        env: constants,
+        constants,
         config: unwrap($config),
         assetsPath: import.meta.env.DEV ? "" : $general.assetsPath,
         preferAnkiConnect: $config.preferAnkiConnect && $general.isAnkiDesktop,

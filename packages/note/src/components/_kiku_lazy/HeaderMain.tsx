@@ -137,7 +137,12 @@ function KanjiPageIndicator() {
   const onClick = (key: string | symbol) => {
     const isKanjiResult = $card.query.noteList.length > 0;
     const isSameReadingResult = ($card.query.sameReading?.length ?? 0) > 0;
-    if (isKanjiResult || isSameReadingResult) {
+    if (
+      isKanjiResult ||
+      isSameReadingResult ||
+      key === constants.SAME_EXPRESSION ||
+      key === constants.SAME_READING
+    ) {
       $setCard("focus", "kanji", key);
       $setCard("uniqueId", createUniqueId());
       navigate("kanji", "forward", () => navigate("main", "back"));

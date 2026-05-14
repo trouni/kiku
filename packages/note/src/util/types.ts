@@ -1,5 +1,5 @@
-import type { NexApi } from "#/worker/_kiku_worker";
 import type { Logger } from "./logger";
+import type { NexApi } from "#/worker/client";
 
 export type AnkiFields = {
   Expression: string;

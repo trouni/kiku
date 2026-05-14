@@ -28,7 +28,7 @@ export function ConfigContextProvider(props: {
     AnkiConnect.changeAddress($config.ankiConnectAddress);
     $general.nex.promise.then((nex) => {
       nex.init({
-        env: constants,
+        constants: constants,
         config: unwrap($config),
         assetsPath: import.meta.env.DEV ? "" : $general.assetsPath,
         preferAnkiConnect: $config.preferAnkiConnect && $general.isAnkiDesktop,
