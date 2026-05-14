@@ -1,5 +1,5 @@
-import type { Logger } from "./logger";
 import type { NexApi } from "#/worker/client";
+import type { Logger } from "./logger";
 
 export type AnkiFields = {
   Expression: string;
@@ -21,6 +21,7 @@ export type AnkiFields = {
   IsSentenceCard: string;
   IsAudioCard: string;
   PitchPosition: string;
+  PitchPattern: string;
   PitchCategories: string;
   Frequency: string;
   FreqSort: string;
@@ -140,6 +141,7 @@ export const ankiFieldsSkeleton: AnkiFields = {
   "IsSentenceCard": "",
   "IsAudioCard": "",
   "PitchPosition": "",
+  "PitchPattern": "",
   "PitchCategories": "",
   "Frequency": "",
   "FreqSort": "",

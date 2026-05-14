@@ -60,8 +60,8 @@ export function Back(props: { onExitNested?: () => void }) {
 
   const pitchFieldDataset: () => DatasetProp = () => ({
     "data-has-pitch": isServer
-      ? "{{#PitchPosition}}true{{/PitchPosition}}"
-      : ankiFields.PitchPosition
+      ? "{{#PitchPosition}}true{{/PitchPosition}}{{^PitchPosition}}{{#PitchPattern}}true{{/PitchPattern}}{{/PitchPosition}}"
+      : ankiFields.PitchPosition || ankiFields.PitchPattern
         ? "true"
         : "",
   });
@@ -112,10 +112,12 @@ export function Back(props: { onExitNested?: () => void }) {
                       <Lazy.Pitches />
                     </Suspense>
                   ) : isServer ? (
-                    "{{#PitchPosition}}<span>&nbsp;</span>{{/PitchPosition}}"
-                  ) : (
-                    ankiFields.PitchPosition && <span>&nbsp;</span>
-                  )}
+                    "{{#PitchPosition}}<span>&nbsp;</span>{{/PitchPosition}}{{^PitchPosition}}{{#PitchPattern}}<span>{{PitchPattern}}</span>{{/PitchPattern}}{{/PitchPosition}}"
+                  ) : ankiFields.PitchPosition ? (
+                    <span>&nbsp;</span>
+                  ) : ankiFields.PitchPattern ? (
+                    <span innerHTML={ankiFields.PitchPattern} />
+                  ) : null}
                 </div>
                 <div class="hidden sm:block sm:h-8 sm:mt-2">
                   {$card.ready && (
