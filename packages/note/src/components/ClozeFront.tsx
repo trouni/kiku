@@ -1,4 +1,4 @@
-import { createSignal, lazy, onMount } from "solid-js";
+import { createEffect, createSignal, lazy, onMount } from "solid-js";
 import { isServer } from "solid-js/web";
 import { useCardContext } from "#/components/shared/CardContext";
 import type { DatasetProp } from "#/util/config";
@@ -17,7 +17,7 @@ const Lazy = {
 };
 
 function createClozeSentence(html: string): string {
-  return html.replace(/<b>([\s\S]*?)<\/b>/g, "<span class='text-base-content-primary font-bold'>[...]</span>");
+  return html.replace(/<b\b[^>]*>([\s\S]*?)<\/b>/gi, "<span class='text-base-content-primary font-bold'>[...]</span>");
 }
 
 export function ClozeFront() {
@@ -41,6 +41,13 @@ export function ClozeFront() {
     if (!sentence) return "";
     return createClozeSentence(sentence);
   };
+
+  // Solid skips setProperty for innerHTML during hydration. Assign imperatively
+  // via createEffect so the cloze replacement reliably overrides the SSR content.
+  let sentenceEl: HTMLDivElement | undefined;
+  createEffect(() => {
+    if (!isServer && sentenceEl) sentenceEl.innerHTML = clozeSentence();
+  });
 
   const hintFieldDataset: () => DatasetProp = () => ({
     "data-has-hint": isServer
@@ -66,12 +73,10 @@ export function ClozeFront() {
         <div class="flex rounded-lg gap-4 flex-col sm:flex-row">
           <div class="flex-1 bg-base-200 p-4 rounded-lg flex flex-col items-center justify-center min-h-40 sm:min-h-56">
             <div
+              ref={sentenceEl}
               class="font-secondary text-center text-xl sm:text-2xl leading-relaxed"
-              innerHTML={isServer ? undefined : clozeSentence()}
             >
-              {isServer
-                ? "{{kanji:Sentence}}"
-                : undefined}
+              {isServer ? "{{kanji:Sentence}}" : undefined}
             </div>
           </div>
 

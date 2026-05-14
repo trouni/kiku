@@ -151,11 +151,6 @@ export function FieldGroupContextProvider(props: { children: JSX.Element }) {
       addIds("0");
     }
 
-    // Randomize initial index for cloze cards so users see varied sentences
-    if ($card.cardType === "cloze" && $group.ids.length > 1 && $group.index === 0) {
-      $setGroup("index", Math.floor(Math.random() * $group.ids.length));
-    }
-
     if ($group.ids.length > 0) {
       const sorted = $group.ids
         .map((id) => Number(id))
@@ -164,6 +159,27 @@ export function FieldGroupContextProvider(props: { children: JSX.Element }) {
           if (b === 0) return 1;
           return b - a;
         });
+
+      // Randomize initial index for cloze cards, restricted to groups whose
+      // sentence has content (otherwise the cloze area would render empty).
+      if ($card.cardType === "cloze" && sorted.length > 1 && $group.index === 0) {
+        const sentenceIds = new Set<number>();
+        sentenceFieldWithGroup.forEach((el) => {
+          const gid = Number((el as HTMLElement).dataset.groupId);
+          if (!Number.isNaN(gid)) sentenceIds.add(gid);
+        });
+        if (sentenceFieldWithoutGroupHtml.trim()) sentenceIds.add(0);
+        const validIndices = sorted
+          .map((gid, idx) => (sentenceIds.has(gid) ? idx : -1))
+          .filter((idx) => idx >= 0);
+        if (validIndices.length > 0) {
+          $setGroup(
+            "index",
+            validIndices[Math.floor(Math.random() * validIndices.length)],
+          );
+        }
+      }
+
       const id = sorted[$group.index];
       let sentenceField: string | undefined;
       let sentenceAudioField: string | undefined;
