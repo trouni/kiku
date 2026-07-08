@@ -1,4 +1,9 @@
 import type { KikuConfig } from "./config";
+import {
+  DEFAULT_FONT_SCALE_MAX_INTERVAL_DAYS,
+  DEFAULT_FONT_SCALE_MAX_PX,
+  DEFAULT_FONT_SCALE_MIN_PX,
+} from "./font-scaling";
 
 // biome-ignore format: this looks nicer
 export const defaultConfig: KikuConfig = {
@@ -35,6 +40,10 @@ export const defaultConfig: KikuConfig = {
   fontSizeSmSentence: "4xl",
   fontSizeSmMiscInfo: "sm",
   fontSizeSmHint: "2xl",
+  fontScaleEnabled: true,
+  fontScaleMinPx: DEFAULT_FONT_SCALE_MIN_PX,
+  fontScaleMaxPx: DEFAULT_FONT_SCALE_MAX_PX,
+  fontScaleMaxIntervalDays: DEFAULT_FONT_SCALE_MAX_INTERVAL_DAYS,
   layoutMaxWidth: "4xl",
   keybindDefinitionPrev: "ArrowLeft",
   keybindDefinitionNext: "ArrowRight",

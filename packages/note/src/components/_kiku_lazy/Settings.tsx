@@ -848,9 +848,128 @@ function FontSizeSettings() {
           <FontSizeSettingsFieldset configKey="fontSizeSmHint" label="Hint" />
         </div>
           </div>
+          <FontScaleSettings />
         </div>
       </div>
     </div>
+  );
+}
+
+function FontScaleSettings() {
+  const [$config, $setConfig] = useConfigContext();
+
+  return (
+    <div>
+      <div class="text-lg font-bold flex gap-2 items-center">
+        Scale with Reviews
+        <div
+          class="tooltip"
+          data-tip="Shrink the expression as a card's review interval grows"
+        >
+          <InfoIcon class="size-4 text-base-content-calm" />
+        </div>
+      </div>
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] rounded-box gap-x-4 gap-y-4 sm:gap-y-2">
+        <fieldset class="fieldset py-0">
+          <legend class="fieldset-legend">Enable</legend>
+          <label class="label">
+            <input
+              type="checkbox"
+              checked={$config.fontScaleEnabled}
+              class="toggle"
+              on:change={(e) => {
+                $setConfig("fontScaleEnabled", e.target.checked);
+              }}
+            />
+          </label>
+        </fieldset>
+        <FontScaleRangeFieldset
+          configKey="fontScaleMinPx"
+          label="Min Font Size"
+          min={8}
+          max={48}
+          step={1}
+          unit="px"
+        />
+        <FontScaleRangeFieldset
+          configKey="fontScaleMaxPx"
+          label="Max Font Size"
+          min={16}
+          max={128}
+          step={2}
+          unit="px"
+        />
+        <FontScaleRangeFieldset
+          configKey="fontScaleMaxIntervalDays"
+          label="Max Interval"
+          min={5}
+          max={120}
+          step={5}
+          unit="d"
+        />
+      </div>
+    </div>
+  );
+}
+
+function FontScaleRangeFieldset(props: {
+  configKey: "fontScaleMinPx" | "fontScaleMaxPx" | "fontScaleMaxIntervalDays";
+  label: string;
+  min: number;
+  max: number;
+  step: number;
+  unit: string;
+}) {
+  const [$config, $setConfig] = useConfigContext();
+  const value = () => $config[props.configKey];
+  const disabled = () => !$config.fontScaleEnabled;
+
+  return (
+    <fieldset class="fieldset" classList={{ "opacity-50": disabled() }}>
+      <legend class="fieldset-legend">
+        {props.label}{" "}
+        <button
+          on:click={() => {
+            $setConfig(props.configKey, defaultConfig[props.configKey]);
+          }}
+          on:touchend={(e) => e.stopPropagation()}
+        >
+          <UndoIcon
+            class="size-4 cursor-pointer"
+            classList={{
+              hidden:
+                $config[props.configKey] === defaultConfig[props.configKey],
+            }}
+          />
+        </button>
+      </legend>
+      <input
+        type="range"
+        min={props.min.toString()}
+        max={props.max.toString()}
+        step={props.step.toString()}
+        value={value().toString()}
+        disabled={disabled()}
+        class="range range-xs w-full"
+        on:change={(e) => {
+          $setConfig(props.configKey, Number(e.target.value));
+        }}
+      />
+      <div class="flex justify-between px-2 mt-1 text-xs">
+        <span>
+          {props.min}
+          {props.unit}
+        </span>
+        <span>
+          {value()}
+          {props.unit}
+        </span>
+        <span>
+          {props.max}
+          {props.unit}
+        </span>
+      </div>
+    </fieldset>
   );
 }
 

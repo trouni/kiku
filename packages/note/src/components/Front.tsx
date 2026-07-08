@@ -2,10 +2,7 @@ import { createEffect, createSignal, lazy, onMount } from "solid-js";
 import { isServer } from "solid-js/web";
 import { useCardContext } from "#/components/shared/CardContext";
 import type { DatasetProp } from "#/util/config";
-import {
-  fetchCardInterval,
-  getScaledFontSizePx,
-} from "#/util/font-scaling";
+import { fetchCardInterval, getScaledFontSizePx } from "#/util/font-scaling";
 import { useLoadPlugin } from "#/util/hooks";
 import { ClozeFront } from "./ClozeFront";
 import { FieldGroupPaginationSection } from "./FieldGroupPaginationSection";
@@ -38,6 +35,7 @@ function MiningFront() {
   const [clicked, setClicked] = createSignal(false);
   const [hideExpression, setHideExpression] = createSignal(false);
   const [showSentence, setShowSentence] = createSignal(false);
+  const [showHint, setShowHint] = createSignal(false);
   const [scaledFontSize, setScaledFontSize] = createSignal<
     number | undefined
   >();
@@ -67,7 +65,15 @@ function MiningFront() {
       ankiFields.CardID,
     ).then((interval) => {
       setScaledFontSize(
-        getScaledFontSizePx($config.fontSizeBaseExpression, interval),
+        getScaledFontSizePx(
+          {
+            enabled: $config.fontScaleEnabled,
+            minPx: $config.fontScaleMinPx,
+            maxPx: $config.fontScaleMaxPx,
+            maxIntervalDays: $config.fontScaleMaxIntervalDays,
+          },
+          interval,
+        ),
       );
     });
   });
@@ -208,7 +214,18 @@ function MiningFront() {
         class={`flex gap-2 items-center justify-center text-center border-t-1 hint text-base-content-calm hint-field border-base-content-soft p-2`}
         {...hintFieldDataset()}
       >
-        <div innerHTML={isServer ? undefined : ankiFields.Hint}>
+        {$card.ready && !showHint() && (
+          <button
+            class="btn btn-ghost btn-sm text-base-content-soft hover:text-base-content"
+            on:click={() => setShowHint(true)}
+          >
+            Show Hint
+          </button>
+        )}
+        <div
+          classList={{ hidden: $card.ready && !showHint() }}
+          innerHTML={isServer ? undefined : ankiFields.Hint}
+        >
           {isServer ? "{{Hint}}" : undefined}
         </div>
       </div>

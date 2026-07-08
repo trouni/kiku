@@ -62,7 +62,9 @@ class Script {
         },
       });
       log.gray(`modelTemplateAdd: ${JSON.stringify(addResult)}`);
-      console.log(`✅ Added "${this.CLOZE_CARD_TYPE}" card type to "${this.NOTE_TYPE}"`);
+      console.log(
+        `✅ Added "${this.CLOZE_CARD_TYPE}" card type to "${this.NOTE_TYPE}"`,
+      );
     }
   }
 
@@ -91,9 +93,7 @@ class Script {
     });
 
     log.gray(`updateModelTemplates: ${JSON.stringify(result)}`);
-    console.log(
-      `✅ Updated "${this.NOTE_TYPE}" Mining + Cloze templates`,
-    );
+    console.log(`✅ Updated "${this.NOTE_TYPE}" Mining + Cloze templates`);
   }
 
   async updateStyling(styleSrc: string) {

@@ -37,6 +37,10 @@ export type KikuConfig = {
   fontSizeSmSentence: TailwindSize;
   fontSizeSmMiscInfo: TailwindSize;
   fontSizeSmHint: TailwindSize;
+  fontScaleEnabled: boolean;
+  fontScaleMinPx: number;
+  fontScaleMaxPx: number;
+  fontScaleMaxIntervalDays: number;
   layoutMaxWidth: TailwindContainerSize;
   keybindDefinitionPrev: string;
   keybindDefinitionNext: string;
@@ -131,6 +135,11 @@ export function validateConfig(config: KikuConfig): KikuConfig {
       fontSizeSmSentence: tailwindSize.includes(config.fontSizeSmSentence) ? config.fontSizeSmSentence : defaultConfig.fontSizeSmSentence,
       fontSizeSmMiscInfo: tailwindSize.includes(config.fontSizeSmMiscInfo) ? config.fontSizeSmMiscInfo : defaultConfig.fontSizeSmMiscInfo,
       fontSizeSmHint: tailwindSize.includes(config.fontSizeSmHint) ? config.fontSizeSmHint : defaultConfig.fontSizeSmHint,
+
+      fontScaleEnabled: typeof config.fontScaleEnabled === "boolean" ? config.fontScaleEnabled : defaultConfig.fontScaleEnabled,
+      fontScaleMinPx: typeof config.fontScaleMinPx === "number" && config.fontScaleMinPx > 0 ? config.fontScaleMinPx : defaultConfig.fontScaleMinPx,
+      fontScaleMaxPx: typeof config.fontScaleMaxPx === "number" && config.fontScaleMaxPx > 0 ? config.fontScaleMaxPx : defaultConfig.fontScaleMaxPx,
+      fontScaleMaxIntervalDays: typeof config.fontScaleMaxIntervalDays === "number" && config.fontScaleMaxIntervalDays > 0 ? config.fontScaleMaxIntervalDays : defaultConfig.fontScaleMaxIntervalDays,
 
       layoutMaxWidth: tailwindContainerSize.includes(config.layoutMaxWidth) ? config.layoutMaxWidth : defaultConfig.layoutMaxWidth,
       keybindDefinitionPrev: typeof config.keybindDefinitionPrev === "string" ? config.keybindDefinitionPrev : defaultConfig.keybindDefinitionPrev,

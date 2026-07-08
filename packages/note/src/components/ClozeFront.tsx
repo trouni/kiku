@@ -17,7 +17,10 @@ const Lazy = {
 };
 
 function createClozeSentence(html: string): string {
-  return html.replace(/<b\b[^>]*>([\s\S]*?)<\/b>/gi, "<span class='text-base-content-primary font-bold'>[...]</span>");
+  return html.replace(
+    /<b\b[^>]*>([\s\S]*?)<\/b>/gi,
+    "<span class='text-base-content-primary font-bold'>[...]</span>",
+  );
 }
 
 export function ClozeFront() {
@@ -26,6 +29,7 @@ export function ClozeFront() {
   const { $group } = useFieldGroupContext();
   const [$general, $setGeneral] = useGeneralContext();
   const [translationOpen, setTranslationOpen] = createSignal(false);
+  const [showHint, setShowHint] = createSignal(false);
 
   onMount(() => {
     setTimeout(() => {
@@ -106,7 +110,18 @@ export function ClozeFront() {
         class={`flex gap-2 items-center justify-center text-center border-t-1 hint text-base-content-calm hint-field border-base-content-soft p-2`}
         {...hintFieldDataset()}
       >
-        <div innerHTML={isServer ? undefined : ankiFields.Hint}>
+        {$card.ready && !showHint() && (
+          <button
+            class="btn btn-ghost btn-sm text-base-content-soft hover:text-base-content"
+            on:click={() => setShowHint(true)}
+          >
+            Show Hint
+          </button>
+        )}
+        <div
+          classList={{ hidden: $card.ready && !showHint() }}
+          innerHTML={isServer ? undefined : ankiFields.Hint}
+        >
           {isServer ? "{{Hint}}" : undefined}
         </div>
       </div>

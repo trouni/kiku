@@ -1,35 +1,36 @@
-import type { TailwindSize } from "./config";
 import type { AnkiDroidAPI } from "./types";
 
-// Tailwind v4 default font sizes in pixels (assuming 16px root)
-const tailwindSizePixels: Record<TailwindSize, number> = {
-  xs: 12,
-  sm: 14,
-  md: 16,
-  lg: 18,
-  xl: 20,
-  "2xl": 24,
-  "3xl": 30,
-  "4xl": 36,
-  "5xl": 48,
-  "6xl": 60,
-  "7xl": 72,
-  "8xl": 96,
-  "9xl": 128,
+// Defaults for review-based font scaling (overridable via config)
+export const DEFAULT_FONT_SCALE_MIN_PX = 12;
+export const DEFAULT_FONT_SCALE_MAX_PX = 48;
+export const DEFAULT_FONT_SCALE_MAX_INTERVAL_DAYS = 30;
+
+export type FontScaleOptions = {
+  enabled: boolean;
+  minPx: number;
+  maxPx: number;
+  maxIntervalDays: number;
 };
 
-export const MIN_FONT_SIZE_PX = 12;
-const MAX_INTERVAL_DAYS = 30;
-
+/**
+ * Map a card's review interval to a font size in pixels: the expression
+ * shrinks from `maxPx` (fresh card) toward `minPx` as the interval grows,
+ * reaching `minPx` once the interval hits `maxIntervalDays`.
+ *
+ * Returns `undefined` when no override is needed (scaling disabled or a
+ * brand-new/unreviewed card), letting the CSS-configured size apply.
+ */
 export function getScaledFontSizePx(
-  configuredSize: TailwindSize,
+  options: FontScaleOptions,
   intervalDays: number,
 ): number | undefined {
+  const { enabled, minPx, maxPx, maxIntervalDays } = options;
+  if (!enabled) return undefined;
   if (intervalDays <= 0) return undefined; // no override needed
-  const maxPx = tailwindSizePixels[configuredSize];
-  if (intervalDays >= MAX_INTERVAL_DAYS) return MIN_FONT_SIZE_PX;
-  const t = intervalDays / MAX_INTERVAL_DAYS;
-  return Math.round(maxPx - t * (maxPx - MIN_FONT_SIZE_PX));
+  if (maxIntervalDays <= 0) return minPx;
+  if (intervalDays >= maxIntervalDays) return minPx;
+  const t = intervalDays / maxIntervalDays;
+  return Math.round(maxPx - t * (maxPx - minPx));
 }
 
 export async function fetchCardInterval(
@@ -50,7 +51,10 @@ export async function fetchCardInterval(
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
-      const invoke = async (action: string, params: Record<string, unknown> = {}) => {
+      const invoke = async (
+        action: string,
+        params: Record<string, unknown> = {},
+      ) => {
         const res = await fetch(ankiConnectAddress, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
