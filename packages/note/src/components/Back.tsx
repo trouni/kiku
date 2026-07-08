@@ -119,7 +119,7 @@ export function Back(props: { onExitNested?: () => void }) {
                     <span innerHTML={ankiFields.PitchPattern} />
                   ) : null}
                 </div>
-                <div class="hidden sm:block sm:h-8 sm:mt-2">
+                <div class="sm:h-8 mt-2 sm:mt-2">
                   {$card.ready && (
                     <div class="animate-fade-in-sm flex gap-2">
                       <Lazy.AudioButtons position={1} />
@@ -138,12 +138,7 @@ export function Back(props: { onExitNested?: () => void }) {
               }}
             />
           )}
-          {$card.ready && (
-            <>
-              <Lazy.BackFooter tags={tags} />
-              <Lazy.AudioButtons position={2} />
-            </>
-          )}
+          {$card.ready && <Lazy.BackFooter tags={tags} />}
         </Match>
       </Switch>
       {$card.ready && (

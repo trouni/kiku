@@ -1,5 +1,4 @@
 import { createEffect, For, onMount, Show } from "solid-js";
-import { Portal } from "solid-js/web";
 import { useCardContext } from "#/components/shared/CardContext";
 import { nodesToString, sliceSentenceAudioByGroup } from "#/util/general";
 import { useAnkiFieldContext } from "../shared/AnkiFieldsContext";
@@ -291,20 +290,5 @@ export default function AudioButtons(props: { position: 1 | 2 }) {
         </Show>
         <NotePlayIcons />
       </>
-    );
-
-  if (props.position === 2)
-    return (
-      <Portal mount={$general.layoutRef}>
-        <div
-          class="bottom-4 left-4 flex sm:hidden flex-col gap-2 items-center animate-fade-in-sm"
-          classList={{
-            fixed: !$general.isAnkiWeb,
-            absolute: $general.isAnkiWeb,
-          }}
-        >
-          <NotePlayIcons />
-        </div>
-      </Portal>
     );
 }
