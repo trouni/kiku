@@ -1,7 +1,7 @@
 import { createEffect, For, onMount, Show } from "solid-js";
 import { Portal } from "solid-js/web";
 import { useCardContext } from "#/components/shared/CardContext";
-import { nodesToString } from "#/util/general";
+import { nodesToString, sliceSentenceAudioByGroup } from "#/util/general";
 import { useAnkiFieldContext } from "../shared/AnkiFieldsContext";
 import { useBreakpointContext } from "../shared/BreakpointContext";
 import { useConfigContext } from "../shared/ConfigContext";
@@ -81,8 +81,31 @@ export default function AudioButtons(props: { position: 1 | 2 }) {
     position: "absolute",
   } as const;
 
+  // On mobile, Anki's native player can't decode some codecs (notably ogg),
+  // and native back-side autoplay is unreliable. When we have the note's raw
+  // `[sound:...]` refs (from the embedded DB), render real <audio> elements and
+  // play them through the webview instead — same path nested cards already use,
+  // which decodes ogg fine. Desktop/AnkiWeb keep native playback.
+  const htmlAudioMode = () =>
+    !$card.nested &&
+    !bp.isAtLeast("sm") &&
+    !$general.isAnkiWeb &&
+    !!$card.selfAudio &&
+    (!!$card.selfAudio.expressionAudio.trim() ||
+      !!$card.selfAudio.sentenceAudio.trim());
+
+  // Raw sentence audio for the group currently on screen.
+  const currentGroupRawSentenceAudio = () =>
+    sliceSentenceAudioByGroup(
+      $card.selfAudio?.sentenceAudio ?? "",
+      $group.currentId,
+    );
+
   createEffect(() => {
     $group.sentenceAudioField;
+    // Re-run when we switch into HTML5 mode so `sentenceAudios` picks up the
+    // <audio> elements instead of the (now absent) soundLink anchors.
+    $card.selfAudio;
     const anchors = $card.sentenceAudioRef?.querySelectorAll("a");
     if (anchors?.length) {
       $setCard("sentenceAudios", Array.from(anchors));
@@ -105,6 +128,9 @@ export default function AudioButtons(props: { position: 1 | 2 }) {
   let autoPlay = true;
   createEffect(() => {
     $group.sentenceAudioField;
+    // Track raw-audio arrival so autoplay re-evaluates once the DB lookup lands.
+    $card.selfAudio;
+    $card.selfAudioReady;
     const useWebVolume = bp.isAtLeast("sm") || $general.isAnkiWeb;
     $card.expressionAudioRef?.querySelectorAll("audio").forEach((el) => {
       el.volume = useWebVolume ? $config.volume / 100 : 1;
@@ -133,14 +159,35 @@ export default function AudioButtons(props: { position: 1 | 2 }) {
         !$general.isAnkiWeb
       ) {
         // Mobile native Anki (AnkiDroid/AnkiMobile) doesn't reliably autoplay
-        // back-side audio, so trigger the soundLink the same way the manual
-        // play button does. Gated by position to avoid the second instance
+        // back-side audio. Gated by position to avoid the second instance
         // double-firing.
-        const expressionLink = $card.expressionAudioRef?.querySelector("a");
-        if (expressionLink) {
-          autoPlay = false;
-          clickAnkiSoundLink(expressionLink);
+        if (htmlAudioMode()) {
+          // Play through the webview's HTML5 <audio> (decodes ogg, which the
+          // native player can't). Expression first, then the shown sentence —
+          // the order desktop autoplay uses.
+          const expressionAudio =
+            $card.expressionAudioRef?.querySelector("audio");
+          const sentenceAudio = $card.sentenceAudioRef?.querySelector("audio");
+          if (expressionAudio || sentenceAudio) {
+            autoPlay = false;
+            if (expressionAudio) {
+              expressionAudio.play();
+              expressionAudio.onended = () => sentenceAudio?.play();
+            } else {
+              sentenceAudio?.play();
+            }
+          }
+        } else if ($card.selfAudioReady) {
+          // No raw audio for this note (not in the DB) — fall back to Anki's
+          // native player via the soundLink, like the manual play button.
+          const expressionLink = $card.expressionAudioRef?.querySelector("a");
+          if (expressionLink) {
+            autoPlay = false;
+            clickAnkiSoundLink(expressionLink);
+          }
         }
+        // else: DB lookup still pending — wait; this effect re-runs when
+        // selfAudio/selfAudioReady update, and onMount has a native backstop.
       }
     }
   });
@@ -148,6 +195,25 @@ export default function AudioButtons(props: { position: 1 | 2 }) {
   onMount(() => {
     if ($card.isNsfw && $config.muteNsfw) {
       clickAnkiSoundLink($card.expressionAudioRef?.querySelector("a"));
+    }
+
+    // Backstop: if the notes-DB lookup never settles (worker hang, missing DB),
+    // don't leave the card silent — fall back to the native player.
+    if (
+      props.position === 1 &&
+      $card.side === "back" &&
+      !bp.isAtLeast("sm") &&
+      !$general.isAnkiWeb
+    ) {
+      setTimeout(() => {
+        if (autoPlay && !htmlAudioMode()) {
+          const expressionLink = $card.expressionAudioRef?.querySelector("a");
+          if (expressionLink) {
+            autoPlay = false;
+            clickAnkiSoundLink(expressionLink);
+          }
+        }
+      }, 2500);
     }
   });
 
@@ -182,20 +248,47 @@ export default function AudioButtons(props: { position: 1 | 2 }) {
   if (props.position === 1)
     return (
       <>
-        <div
-          style={hiddenStyle}
-          ref={(ref) => $setCard("expressionAudioRef", ref)}
-          innerHTML={$card.nested ? undefined : ankiFields.ExpressionAudio}
+        {/* In HTML5 mode, render a distinct <audio> div (via <Show>) rather
+            than mutating innerHTML in place — swapping the element cleanly drops
+            the native soundLink so it can't linger and double-fire. */}
+        <Show
+          when={htmlAudioMode()}
+          fallback={
+            <div
+              style={hiddenStyle}
+              ref={(ref) => $setCard("expressionAudioRef", ref)}
+              innerHTML={$card.nested ? undefined : ankiFields.ExpressionAudio}
+            >
+              {$card.nested && <AudioTag text={ankiFields.ExpressionAudio} />}
+            </div>
+          }
         >
-          {$card.nested && <AudioTag text={ankiFields.ExpressionAudio} />}
-        </div>
-        <div
-          style={hiddenStyle}
-          ref={(ref) => $setCard("sentenceAudioRef", ref)}
-          innerHTML={$card.nested ? undefined : $group.sentenceAudioField}
+          <div
+            style={hiddenStyle}
+            ref={(ref) => $setCard("expressionAudioRef", ref)}
+          >
+            <AudioTag text={$card.selfAudio?.expressionAudio ?? ""} />
+          </div>
+        </Show>
+        <Show
+          when={htmlAudioMode()}
+          fallback={
+            <div
+              style={hiddenStyle}
+              ref={(ref) => $setCard("sentenceAudioRef", ref)}
+              innerHTML={$card.nested ? undefined : $group.sentenceAudioField}
+            >
+              {$card.nested && <AudioTag text={$group.sentenceAudioField} />}
+            </div>
+          }
         >
-          {$card.nested && <AudioTag text={$group.sentenceAudioField} />}
-        </div>
+          <div
+            style={hiddenStyle}
+            ref={(ref) => $setCard("sentenceAudioRef", ref)}
+          >
+            <AudioTag text={currentGroupRawSentenceAudio()} />
+          </div>
+        </Show>
         <NotePlayIcons />
       </>
     );

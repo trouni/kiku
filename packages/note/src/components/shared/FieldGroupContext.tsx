@@ -15,6 +15,8 @@ export type GroupStore = {
   miscInfoField: string;
   index: number;
   ids: string[];
+  // The group id currently shown ("0" = the ungrouped bucket, "" = no groups).
+  currentId: string;
 };
 
 const FieldGroupContext = createContext<{
@@ -51,6 +53,7 @@ export function FieldGroupContextProvider(props: { children: JSX.Element }) {
     miscInfoField,
     index: 0,
     ids: [],
+    currentId: "",
   });
   const ids = new Set<string>();
   const addIds = (id: string | undefined) => {
@@ -107,7 +110,9 @@ export function FieldGroupContextProvider(props: { children: JSX.Element }) {
       miscInfoFieldWithoutGroup,
     );
 
-    const sentenceTranslationFieldDoc = parseHtml(sentenceTranslationField ?? "");
+    const sentenceTranslationFieldDoc = parseHtml(
+      sentenceTranslationField ?? "",
+    );
     const sentenceTranslationFieldWithGroup =
       sentenceTranslationFieldDoc.querySelectorAll("[data-group-id]");
     sentenceTranslationFieldWithGroup.forEach((el) => {
@@ -162,7 +167,11 @@ export function FieldGroupContextProvider(props: { children: JSX.Element }) {
 
       // Randomize initial index for cloze cards, restricted to groups whose
       // sentence has content (otherwise the cloze area would render empty).
-      if ($card.cardType === "cloze" && sorted.length > 1 && $group.index === 0) {
+      if (
+        $card.cardType === "cloze" &&
+        sorted.length > 1 &&
+        $group.index === 0
+      ) {
         const sentenceIds = new Set<number>();
         sentenceFieldWithGroup.forEach((el) => {
           const gid = Number((el as HTMLElement).dataset.groupId);
@@ -200,9 +209,11 @@ export function FieldGroupContextProvider(props: { children: JSX.Element }) {
         sentenceAudioField = filterById(sentenceAudioFieldWithGroup);
         miscInfoField = filterById(miscInfoFieldWithGroup);
 
-        sentenceTranslationField = Array.from(sentenceTranslationFieldWithGroup).find(
-          (el) => (el as HTMLSpanElement).dataset.groupId === id.toString(),
-        )?.outerHTML ?? (sentenceTranslationFieldWithoutGroupHtml || undefined);
+        sentenceTranslationField =
+          Array.from(sentenceTranslationFieldWithGroup).find(
+            (el) => (el as HTMLSpanElement).dataset.groupId === id.toString(),
+          )?.outerHTML ??
+          (sentenceTranslationFieldWithoutGroupHtml || undefined);
 
         const pictureFieldArray = Array.from(pictureFieldWithGroup);
         if (dummyImg) pictureFieldArray.push(dummyImg);
@@ -222,6 +233,7 @@ export function FieldGroupContextProvider(props: { children: JSX.Element }) {
       $setGroup("sentenceAudioField", sentenceAudioField ?? "");
       $setGroup("miscInfoField", miscInfoField ?? "");
       $setGroup("pictureField", pictureField ?? "");
+      $setGroup("currentId", id.toString());
 
       // biome-ignore lint format: this looks nicer
       { $general.logger.info("[Groups] sentenceField:", sentenceField);

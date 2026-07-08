@@ -162,6 +162,7 @@ export class WorkerThreadApi {
       kanjiResult: Record<string, AnkiNote[]>;
       readingResult: Record<string, AnkiNote[]>;
       expressionResult: Record<string, AnkiNote[]>;
+      selfNote: AnkiNote | undefined;
     }>((resolve) => {
       this.pendingQueryShared.push({
         kanjiList,
@@ -187,6 +188,7 @@ export class WorkerThreadApi {
       kanjiResult: Record<string, AnkiNote[]>;
       readingResult: Record<string, AnkiNote[]>;
       expressionResult: Record<string, AnkiNote[]>;
+      selfNote: AnkiNote | undefined;
     }) => void;
   }[] = [];
 
@@ -211,6 +213,23 @@ export class WorkerThreadApi {
 
     for (const req of requests) {
       const { kanjiList, readingList, expressionList, ankiFields } = req;
+
+      const cardId = Number(ankiFields.CardID);
+      // The current note is present in the raw result buckets (it matches its
+      // own expression/kanji) before we filter it out below. Grab it so the
+      // reviewed card can read its own raw `[sound:...]` refs from the DB —
+      // Anki bakes those into index-only soundLinks, but the webview's HTML5
+      // <audio> needs the filename (and can decode codecs the native player
+      // can't, e.g. ogg).
+      const selfNote = Number.isNaN(cardId)
+        ? undefined
+        : [
+            ...Object.values(kanjiListResult),
+            ...Object.values(readingListResult),
+            ...Object.values(expressionListResult),
+          ]
+            .flat()
+            .find((note) => note.cards.includes(cardId));
 
       const filterSameNote = (note: AnkiNote) => {
         if (note.cards.includes(Number(ankiFields.CardID))) return false;
@@ -249,6 +268,7 @@ export class WorkerThreadApi {
         kanjiResult,
         readingResult,
         expressionResult,
+        selfNote,
       });
     }
   }

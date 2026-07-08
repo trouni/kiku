@@ -181,7 +181,7 @@ export function useKanji() {
       if (cacheStore && !cacheStore.nex) {
         cacheStore.nex = nex;
       }
-      const { kanjiResult, readingResult, expressionResult } =
+      const { kanjiResult, readingResult, expressionResult, selfNote } =
         await nex.queryShared({
           kanjiList,
           readingList,
@@ -198,6 +198,14 @@ export function useKanji() {
         sameExpression: expressionResult[ankiFields.Expression],
       });
 
+      if (selfNote) {
+        $setCard("selfAudio", {
+          expressionAudio: selfNote.fields.ExpressionAudio?.value ?? "",
+          sentenceAudio: selfNote.fields.SentenceAudio?.value ?? "",
+        });
+      }
+      $setCard("selfAudioReady", true);
+
       nex
         .notesManifest()
         .then((manifest) => $setGeneral("notesManifest", manifest))
@@ -206,6 +214,9 @@ export function useKanji() {
         });
     } catch (e) {
       $setCard("query", { status: "error" });
+      // Let mobile autoplay fall back to the native player instead of waiting
+      // forever for raw audio that will never arrive.
+      $setCard("selfAudioReady", true);
       $general.logger.error(
         "Failed to load kanji information:",
         e instanceof Error ? e.message : "",

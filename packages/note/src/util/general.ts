@@ -123,6 +123,31 @@ export function nodesToString(nodes: Node[]) {
     .join("");
 }
 
+/**
+ * Return the raw `[sound:...]` markup for one field group, mirroring how
+ * FieldGroupContext slices the processed field. Used to feed the on-screen
+ * group's sentence audio into an HTML5 <audio> element.
+ *
+ * - `currentId === ""` → no grouping active, return the whole field.
+ * - `currentId === "0"` → the ungrouped bucket (top-level nodes without an id).
+ * - otherwise → the node(s) tagged with that `data-group-id`.
+ */
+export function sliceSentenceAudioByGroup(raw: string, currentId: string) {
+  if (!raw.trim()) return "";
+  if (!currentId) return raw;
+  const doc = parseHtml(raw);
+  if (currentId === "0") {
+    const withoutGroup = Array.from(doc.body.childNodes).filter(
+      (node) => !(node as HTMLElement).dataset?.groupId,
+    );
+    return nodesToString(withoutGroup);
+  }
+  const withGroup = Array.from(doc.querySelectorAll("[data-group-id]")).filter(
+    (el) => (el as HTMLElement).dataset.groupId === currentId,
+  );
+  return nodesToString(withGroup);
+}
+
 export function unique<T>(arr: readonly T[]): T[] {
   return Array.from(new Set(arr));
 }

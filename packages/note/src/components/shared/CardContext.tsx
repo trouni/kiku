@@ -40,6 +40,13 @@ type CardStore = {
     noteId: number | undefined;
   };
   navigateBack: (() => void)[];
+  // Raw `[sound:...]` refs for the current note, looked up from the embedded
+  // notes DB (undefined until that query resolves; stays undefined if the note
+  // isn't in the DB). Lets mobile play audio through the webview's HTML5
+  // <audio> instead of Anki's native player. `selfAudioReady` flips true once
+  // the lookup settles (found or not) so autoplay can fall back to native.
+  selfAudio?: { expressionAudio: string; sentenceAudio: string };
+  selfAudioReady: boolean;
   nested: boolean;
   nestedAnkiFields: AnkiFields;
   nestedNoteId: number | undefined;
@@ -82,6 +89,8 @@ export function CardStoreContextProvider(props: {
       noteId: undefined,
     },
     navigateBack: [],
+    selfAudio: undefined,
+    selfAudioReady: false,
     nested: props.nested ?? false,
     nestedAnkiFields: ankiFieldsSkeleton,
     nestedNoteId: undefined,
