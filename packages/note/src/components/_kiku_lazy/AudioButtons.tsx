@@ -1,6 +1,11 @@
-import { createEffect, For, onMount, Show } from "solid-js";
+import { createEffect, createSignal, For, onMount, Show } from "solid-js";
 import { useCardContext } from "#/components/shared/CardContext";
-import { nodesToString, sliceSentenceAudioByGroup } from "#/util/general";
+import {
+  countAudioTags,
+  needsHtml5Audio,
+  nodesToString,
+  sliceSentenceAudioByGroup,
+} from "#/util/general";
 import { useAnkiFieldContext } from "../shared/AnkiFieldsContext";
 import { useBreakpointContext } from "../shared/BreakpointContext";
 import { useConfigContext } from "../shared/ConfigContext";
@@ -44,6 +49,34 @@ function clickAnkiSoundLink(link: HTMLAnchorElement | null | undefined) {
   }
   link.click();
   return true;
+}
+
+// Run `play` once the audio `file` (from the embedded DB) finishes — used to
+// start the shown group's sentence right after the expression, when the
+// expression plays through a channel that gives no `ended` event (Anki's native
+// player). We read the duration from a metadata-only probe and subtract the
+// time already elapsed since the expression started, so the sentence isn't
+// delayed. Falls back to a fixed gap when the length can't be measured.
+function playAfterAudio(
+  file: string | undefined,
+  startedAt: number,
+  play: () => void,
+) {
+  if (!file) {
+    setTimeout(play, 1200);
+    return;
+  }
+  const probe = document.createElement("audio");
+  probe.preload = "metadata";
+  probe.src = file;
+  probe.addEventListener("loadedmetadata", () => {
+    const dur = probe.duration;
+    const wait = Number.isFinite(dur)
+      ? Math.max(0, dur * 1000 - (Date.now() - startedAt) + 150)
+      : 1200;
+    setTimeout(play, wait);
+  });
+  probe.addEventListener("error", () => setTimeout(play, 1200));
 }
 
 export function NotePlayIcon(props: {
@@ -90,8 +123,12 @@ export default function AudioButtons(props: { position: 1 | 2 }) {
     !bp.isAtLeast("sm") &&
     !$general.isAnkiWeb &&
     !!$card.selfAudio &&
-    (!!$card.selfAudio.expressionAudio.trim() ||
-      !!$card.selfAudio.sentenceAudio.trim());
+    // Only route through HTML5 when the native mobile player can't decode the
+    // codec (ogg). mp3/aac autoplay natively, so keep those on the soundLink
+    // path — that lets the grouped takeover below drive them via pycmd, and
+    // avoids playing the same sound through both players at once.
+    (needsHtml5Audio($card.selfAudio.expressionAudio) ||
+      needsHtml5Audio($card.selfAudio.sentenceAudio));
 
   // Raw sentence audio for the group currently on screen.
   const currentGroupRawSentenceAudio = () =>
@@ -161,34 +198,133 @@ export default function AudioButtons(props: { position: 1 | 2 }) {
         // back-side audio. Gated by position to avoid the second instance
         // double-firing.
         if (htmlAudioMode()) {
-          // Play through the webview's HTML5 <audio> (decodes ogg, which the
-          // native player can't). Expression first, then the shown sentence —
-          // the order desktop autoplay uses.
+          // The card has ogg the native player can't decode. Native autoplay
+          // stalls on the first ogg tag and never reaches the sounds after it,
+          // so drive the shown group through the webview's HTML5 <audio>: play
+          // its sentence whatever the codec, and the expression too when it's
+          // ogg. A native-playable (mp3) expression is left to native — it's
+          // first in the queue, so native plays it before stalling.
           const expressionAudio =
             $card.expressionAudioRef?.querySelector("audio");
           const sentenceAudio = $card.sentenceAudioRef?.querySelector("audio");
-          if (expressionAudio || sentenceAudio) {
+          const exprRaw = $card.selfAudio?.expressionAudio ?? "";
+          const exprNeedsHtml5 = needsHtml5Audio(exprRaw);
+          const playExpression = !!expressionAudio && exprNeedsHtml5;
+          // Once the expression is ogg, native has stalled, so its sentence
+          // never sounds natively either — play it here regardless of codec.
+          const playSentence =
+            !!sentenceAudio &&
+            (exprNeedsHtml5 || needsHtml5Audio(currentGroupRawSentenceAudio()));
+          if (playExpression || playSentence) {
             autoPlay = false;
-            if (expressionAudio) {
+            if (playExpression) {
               expressionAudio.play();
-              expressionAudio.onended = () => sentenceAudio?.play();
-            } else {
-              sentenceAudio?.play();
+              if (playSentence) {
+                expressionAudio.onended = () => sentenceAudio?.play();
+              }
+            } else if (playSentence) {
+              // Expression is mp3 (autoplaying natively); delay the sentence
+              // until it ends so the two don't overlap.
+              const exprFile = exprRaw.match(/\[sound:([^\]]+)\]/)?.[1];
+              if (exprFile) {
+                playAfterAudio(exprFile, Date.now(), () =>
+                  sentenceAudio?.play(),
+                );
+              } else {
+                sentenceAudio?.play();
+              }
             }
           }
         } else if ($card.selfAudioReady) {
-          // No raw audio for this note (not in the DB) — fall back to Anki's
-          // native player via the soundLink, like the manual play button.
-          const expressionLink = $card.expressionAudioRef?.querySelector("a");
-          if (expressionLink) {
+          const grouped = countAudioTags(ankiFields.SentenceAudio) > 1;
+          if (grouped) {
+            // Grouped, native-playable (mp3): the takeover effect below drives
+            // it via pycmd so only the shown group sounds.
+          } else if ($card.selfAudio) {
+            // mp3 in the DB: Anki's native player autoplays it — take no action,
+            // just stop retrying so the onMount backstop doesn't re-fire it.
             autoPlay = false;
-            clickAnkiSoundLink(expressionLink);
+          } else {
+            // Not in the DB: native autoplay is unreliable on mobile, so trigger
+            // the native player via the soundLink, like the manual play button.
+            const expressionLink = $card.expressionAudioRef?.querySelector("a");
+            if (expressionLink) {
+              autoPlay = false;
+              clickAnkiSoundLink(expressionLink);
+            }
           }
         }
         // else: DB lookup still pending — wait; this effect re-runs when
         // selfAudio/selfAudioReady update, and onMount has a native backstop.
       }
     }
+  });
+
+  // Anki's native back-side autoplay plays every `[sound:...]` in
+  // `{{SentenceAudio}}`. For a grouped note that's every group's sentence, not
+  // just the one on screen. When there are 2+ sentence sounds we take over:
+  // clicking a soundLink runs `pycmd('play:a:N')`, which clears Anki's autoplay
+  // queue and interrupts it, so the off-screen groups never sound. We play the
+  // expression first, then the shown group's sentence once the expression ends.
+  // Runs wherever pycmd drives native playback (desktop, AnkiMobile) — but only
+  // when soundLinks are rendered, i.e. NOT in htmlAudioMode, so ogg cards keep
+  // the HTML5 path above (which already slices to the shown group). AnkiWeb is
+  // excluded (no pycmd queue control).
+  const [tookOver, setTookOver] = createSignal(false);
+  let sentenceQueued = false;
+  let expressionStartedAt = 0;
+
+  createEffect(() => {
+    if (tookOver()) return;
+    if (
+      props.position !== 1 ||
+      $card.side !== "back" ||
+      $card.nested ||
+      !$general.isAnkiDesktop ||
+      $general.isAnkiWeb
+    ) {
+      return;
+    }
+    // Re-runs once the shown group's soundLink is mounted. Absent in
+    // htmlAudioMode (ogg) — those render <audio>, not <a>, so this no-ops and
+    // the HTML5 path handles them.
+    const sentenceAnchor = $card.sentenceAudioRef?.querySelector("a");
+    if (!sentenceAnchor) return;
+    // A single sentence sound autoplays fine natively — leave it alone.
+    if (countAudioTags(ankiFields.SentenceAudio) <= 1) return;
+
+    expressionStartedAt = Date.now();
+    setTookOver(true);
+    // Stop the mobile branch / onMount backstop from also firing.
+    autoPlay = false;
+    const expressionAnchor = $card.expressionAudioRef?.querySelector("a");
+    if (expressionAnchor) {
+      // Playing the expression also clears the native queue; the sentence
+      // follows once we know how long the expression runs.
+      clickAnkiSoundLink(expressionAnchor);
+    } else {
+      // No expression audio — just play the shown group's sentence.
+      clickAnkiSoundLink(sentenceAnchor);
+      sentenceQueued = true;
+    }
+  });
+
+  // Start the shown group's sentence right after the expression finishes. Its
+  // length comes from the embedded-DB audio once it loads; we subtract the time
+  // already elapsed so the sentence isn't delayed, and fall back to a fixed gap
+  // when the note has no DB audio to measure.
+  createEffect(() => {
+    $card.selfAudio;
+    if (!tookOver() || sentenceQueued || !$card.selfAudioReady) return;
+    const sentenceAnchor = $card.sentenceAudioRef?.querySelector("a");
+    if (!sentenceAnchor) return;
+    sentenceQueued = true;
+
+    const file =
+      $card.selfAudio?.expressionAudio?.match(/\[sound:([^\]]+)\]/)?.[1];
+    playAfterAudio(file, expressionStartedAt, () =>
+      clickAnkiSoundLink(sentenceAnchor),
+    );
   });
 
   onMount(() => {

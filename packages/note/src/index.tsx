@@ -170,8 +170,7 @@ export async function initAnki({
         throw new Error("root not found");
       }
     }
-    const cardType =
-      (root.dataset.cardType as "mining" | "cloze") ?? "mining";
+    const cardType = (root.dataset.cardType as "mining" | "cloze") ?? "mining";
     const rootDataset = {
       theme: root.dataset.theme,
       blurNsfw: root.dataset.blurNsfw,

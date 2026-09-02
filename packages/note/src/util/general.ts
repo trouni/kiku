@@ -148,6 +148,29 @@ export function sliceSentenceAudioByGroup(raw: string, currentId: string) {
   return nodesToString(withGroup);
 }
 
+/**
+ * Count the number of distinct audio playbacks referenced by an audio field,
+ * whether it's raw `[sound:...]` markup (from the embedded DB) or Anki's
+ * rendered `pycmd('play:a:N')` soundLinks. Anki's native back-side autoplay
+ * plays every one of them, so 2+ sentence sounds means a grouped note whose
+ * off-screen groups would sound unless we take playback over.
+ */
+export function countAudioTags(field: string): number {
+  if (!field) return 0;
+  return (field.match(/\[sound:[^\]]+\]|play:[aq]:\d+/g) ?? []).length;
+}
+
+/**
+ * Whether an audio field references a codec Anki's native mobile player
+ * (AVFoundation on AnkiMobile/iOS) can't decode — i.e. Ogg/Opus/WebM. Those
+ * need the webview's HTML5 `<audio>`. mp3/aac/wav autoplay natively, so playing
+ * them through HTML5 as well would double up. Matches both raw `[sound:x.ogg]`
+ * and rendered `<audio src="x.ogg">`.
+ */
+export function needsHtml5Audio(field: string): boolean {
+  return /\.(ogg|oga|opus|webm)(?=["'\]\s]|$)/i.test(field);
+}
+
 export function unique<T>(arr: readonly T[]): T[] {
   return Array.from(new Set(arr));
 }

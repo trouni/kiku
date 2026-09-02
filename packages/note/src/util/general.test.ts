@@ -1,6 +1,10 @@
 import { JSDOM } from "jsdom";
 import { beforeAll, describe, expect, it } from "vitest";
-import { sliceSentenceAudioByGroup } from "./general";
+import {
+  countAudioTags,
+  needsHtml5Audio,
+  sliceSentenceAudioByGroup,
+} from "./general";
 
 beforeAll(() => {
   const dom = new JSDOM();
@@ -44,5 +48,46 @@ describe("sliceSentenceAudioByGroup", () => {
 
   it("returns empty when the selected group has no audio", () => {
     expect(sliceSentenceAudioByGroup(grouped, "99")).toBe("");
+  });
+});
+
+describe("countAudioTags", () => {
+  it("counts raw [sound:...] markup", () => {
+    expect(
+      countAudioTags(
+        '<span data-group-id="11">[sound:N1_0963_2.ogg]</span>[sound:N2_0804.ogg]',
+      ),
+    ).toBe(2);
+    expect(countAudioTags("[sound:only.ogg]")).toBe(1);
+  });
+
+  it("counts rendered pycmd soundLinks", () => {
+    const rendered =
+      '<span data-group-id="10"><a onclick="pycmd(\'play:a:1\'); return false;"></a></span>' +
+      "<a onclick=\"pycmd('play:a:2'); return false;\"></a>";
+    expect(countAudioTags(rendered)).toBe(2);
+  });
+
+  it("returns 0 for empty fields", () => {
+    expect(countAudioTags("")).toBe(0);
+    expect(countAudioTags("<span></span>")).toBe(0);
+  });
+});
+
+describe("needsHtml5Audio", () => {
+  it("is true for ogg/opus the native mobile player can't decode", () => {
+    expect(needsHtml5Audio("[sound:1376_Chap12-Sec5.ogg]")).toBe(true);
+    expect(needsHtml5Audio('<audio src="voice.opus"></audio>')).toBe(true);
+    expect(
+      needsHtml5Audio(
+        '<span data-group-id="2">[sound:a.ogg]</span>[sound:b.mp3]',
+      ),
+    ).toBe(true);
+  });
+
+  it("is false for mp3/aac/wav that autoplay natively", () => {
+    expect(needsHtml5Audio("[sound:hypertts-062dcaf.mp3]")).toBe(false);
+    expect(needsHtml5Audio("[sound:yomitan_audio_6aceaf.mp3]")).toBe(false);
+    expect(needsHtml5Audio("")).toBe(false);
   });
 });

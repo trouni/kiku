@@ -131,11 +131,13 @@ export function FieldGroupContextProvider(props: { children: JSX.Element }) {
     const pictureFieldDoc = parseHtml(pictureField);
     const pictureFieldWithGroup = pictureFieldDoc.querySelectorAll("img");
     pictureFieldWithGroup.forEach((el) => {
-      let id = (el as HTMLElement).dataset.groupId;
-      if (!id) {
-        id = "0";
-        el.dataset.groupId = id;
-      }
+      // Canonically the id lives on the <img> itself, but tolerate it being on
+      // a wrapping ancestor too (e.g. <span data-group-id="2"><img></span>), the
+      // way every other field carries it. closest() matches self-or-ancestor.
+      let id = (el.closest("[data-group-id]") as HTMLElement | null)?.dataset
+        .groupId;
+      if (!id) id = "0";
+      el.dataset.groupId = id;
       addIds(id);
     });
 
